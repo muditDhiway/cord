@@ -1223,7 +1223,8 @@ fn update_registry_with_incorrect_registry_id_should_fail() {
 		.expect("New Test Blob should fit into the expected input length of for the test runtime.");
 
 	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
-	let incorrect_registry_digest = <Test as frame_system::Config>::Hashing::hash(&incorrect_registry.encode()[..]);
+	let incorrect_registry_digest =
+		<Test as frame_system::Config>::Hashing::hash(&incorrect_registry.encode()[..]);
 
 	let id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
@@ -1266,14 +1267,16 @@ fn update_registry_with_incorrect_registry_id_should_fail() {
 		));
 
 		// Entering incorrect registry id should throw an error
-		assert_err!(Registries::update(
-			frame_system::RawOrigin::Signed(creator.clone()).into(),
-			incorrect_registry_id.clone(),
-			new_digest,
-			Some(new_blob.clone()),
-			authorization_id.clone(),
-		), 
-		Error::<Test>::UnauthorizedOperation);
+		assert_err!(
+			Registries::update(
+				frame_system::RawOrigin::Signed(creator.clone()).into(),
+				incorrect_registry_id.clone(),
+				new_digest,
+				Some(new_blob.clone()),
+				authorization_id.clone(),
+			),
+			Error::<Test>::UnauthorizedOperation
+		);
 	});
 }
 
@@ -1318,13 +1321,11 @@ fn ensure_authorization_origin_with_incorrect_delegate_throws_error() {
 		));
 
 		// delegate does not match authorization id
-		assert_err!(Registries::ensure_authorization_origin(
-			&authorization_id, 
-			&delegate
-		), 
+		assert_err!(
+			Registries::ensure_authorization_origin(&authorization_id, &delegate),
 			Error::<Test>::UnauthorizedOperation
 		);
-	});	
+	});
 }
 
 #[test]
@@ -1381,10 +1382,10 @@ fn ensure_authorization_origin_with_delegate_permission_throws_error() {
 		));
 
 		// delegate has DELEGATOR permission and not ASSERT
-		assert_err!(Registries::ensure_authorization_origin(
-			&delegator_id,
-			&delegate
-		), Error::<Test>::UnauthorizedOperation);
+		assert_err!(
+			Registries::ensure_authorization_origin(&delegator_id, &delegate),
+			Error::<Test>::UnauthorizedOperation
+		);
 	});
 }
 
@@ -1442,10 +1443,10 @@ fn ensure_authorization_origin_with_admin_permission_throws_error() {
 		));
 
 		// delegate has ADMIN permission and not ASSERT
-		assert_err!(Registries::ensure_authorization_origin(
-			&delegator_id,
-			&delegate
-		), Error::<Test>::UnauthorizedOperation);
+		assert_err!(
+			Registries::ensure_authorization_origin(&delegator_id, &delegate),
+			Error::<Test>::UnauthorizedOperation
+		);
 	});
 }
 
@@ -1490,13 +1491,11 @@ fn ensure_authorization_reinstate_origin_fails_with_incorrect_delegate() {
 		));
 
 		// delegate does not match authorization id
-		assert_err!(Registries::ensure_authorization_reinstate_origin(
-			&authorization_id, 
-			&delegate
-		), 
+		assert_err!(
+			Registries::ensure_authorization_reinstate_origin(&authorization_id, &delegate),
 			Error::<Test>::UnauthorizedOperation
 		);
-	});	
+	});
 }
 
 #[test]
@@ -1559,10 +1558,10 @@ fn ensure_authorization_reinstate_origin_with_assert_permission_throws_error() {
 		));
 
 		// delegate has ASSERT permission and not ADMIN
-		assert_err!(Registries::ensure_authorization_reinstate_origin(
-			&delegator_id,
-			&delegate
-		), Error::<Test>::UnauthorizedOperation);
+		assert_err!(
+			Registries::ensure_authorization_reinstate_origin(&delegator_id, &delegate),
+			Error::<Test>::UnauthorizedOperation
+		);
 	});
 }
 
@@ -1626,10 +1625,10 @@ fn ensure_authorization_reinstate_origin_with_delegate_permission_throws_error()
 		));
 
 		// delegate has DELEGATOR permission and not ADMIN
-		assert_err!(Registries::ensure_authorization_reinstate_origin(
-			&delegator_id,
-			&delegate
-		), Error::<Test>::UnauthorizedOperation);
+		assert_err!(
+			Registries::ensure_authorization_reinstate_origin(&delegator_id, &delegate),
+			Error::<Test>::UnauthorizedOperation
+		);
 	});
 }
 
@@ -1674,13 +1673,11 @@ fn ensure_authorization_restore_origin_fails_with_incorrect_delegate() {
 		));
 
 		// delegate does not match authorization id
-		assert_err!(Registries::ensure_authorization_restore_origin(
-			&authorization_id, 
-			&delegate
-		), 
+		assert_err!(
+			Registries::ensure_authorization_restore_origin(&authorization_id, &delegate),
 			Error::<Test>::UnauthorizedOperation
 		);
-	});	
+	});
 }
 
 #[test]
@@ -1743,10 +1740,10 @@ fn ensure_authorization_restore_origin_with_assert_permission_throws_error() {
 		));
 
 		// delegate has ASSERT permission and not ADMIN
-		assert_err!(Registries::ensure_authorization_restore_origin(
-			&delegator_id,
-			&delegate
-		), Error::<Test>::UnauthorizedOperation);
+		assert_err!(
+			Registries::ensure_authorization_restore_origin(&delegator_id, &delegate),
+			Error::<Test>::UnauthorizedOperation
+		);
 	});
 }
 
@@ -1810,10 +1807,10 @@ fn ensure_authorization_restore_origin_with_delegate_permission_throws_error() {
 		));
 
 		// delegate has DELEGATOR permission and not ADMIN
-		assert_err!(Registries::ensure_authorization_restore_origin(
-			&delegator_id,
-			&delegate
-		), Error::<Test>::UnauthorizedOperation);
+		assert_err!(
+			Registries::ensure_authorization_restore_origin(&delegator_id, &delegate),
+			Error::<Test>::UnauthorizedOperation
+		);
 	});
 }
 
@@ -1858,13 +1855,11 @@ fn ensure_authorization_admin_origin_fails_with_incorrect_delegate() {
 		));
 
 		// delegate does not match authorization id
-		assert_err!(Registries::ensure_authorization_admin_origin(
-			&authorization_id, 
-			&delegate
-		), 
+		assert_err!(
+			Registries::ensure_authorization_admin_origin(&authorization_id, &delegate),
 			Error::<Test>::UnauthorizedOperation
 		);
-	});	
+	});
 }
 
 #[test]
@@ -1921,10 +1916,10 @@ fn ensure_authorization_admin_origin_with_assert_permission_throws_error() {
 		));
 
 		// delegate has ASSERT permission and not ADMIN
-		assert_err!(Registries::ensure_authorization_admin_origin(
-			&delegator_id,
-			&delegate
-		), Error::<Test>::UnauthorizedOperation);
+		assert_err!(
+			Registries::ensure_authorization_admin_origin(&delegator_id, &delegate),
+			Error::<Test>::UnauthorizedOperation
+		);
 	});
 }
 
@@ -1982,10 +1977,10 @@ fn ensure_authorization_admin_origin_with_delegate_permission_throws_error() {
 		));
 
 		// delegate has DELEGATOR permission and not ADMIN
-		assert_err!(Registries::ensure_authorization_admin_origin(
-			&delegator_id,
-			&delegate
-		), Error::<Test>::UnauthorizedOperation);
+		assert_err!(
+			Registries::ensure_authorization_admin_origin(&delegator_id, &delegate),
+			Error::<Test>::UnauthorizedOperation
+		);
 	});
 }
 
@@ -2030,13 +2025,11 @@ fn ensure_authorization_delegator_origin_fails_with_incorrect_delegate() {
 		));
 
 		// delegate does not match authorization id
-		assert_err!(Registries::ensure_authorization_delegator_origin(
-			&authorization_id, 
-			&delegate
-		), 
+		assert_err!(
+			Registries::ensure_authorization_delegator_origin(&authorization_id, &delegate),
 			Error::<Test>::UnauthorizedOperation
 		);
-	});	
+	});
 }
 
 #[test]
@@ -2093,10 +2086,10 @@ fn ensure_authorization_delegator_origin_with_assert_permission_throws_error() {
 		));
 
 		// delegate has ASSERT permission and not DELEGATOR
-		assert_err!(Registries::ensure_authorization_delegator_origin(
-			&delegator_id,
-			&delegate
-		), Error::<Test>::UnauthorizedOperation);
+		assert_err!(
+			Registries::ensure_authorization_delegator_origin(&delegator_id, &delegate),
+			Error::<Test>::UnauthorizedOperation
+		);
 	});
 }
 
@@ -2141,13 +2134,11 @@ fn ensure_authorization_admin_remove_origin_fails_with_incorrect_delegate() {
 		));
 
 		// delegate does not match authorization id
-		assert_err!(Registries::ensure_authorization_admin_remove_origin(
-			&authorization_id, 
-			&delegate
-		), 
+		assert_err!(
+			Registries::ensure_authorization_admin_remove_origin(&authorization_id, &delegate),
 			Error::<Test>::UnauthorizedOperation
 		);
-	});	
+	});
 }
 
 #[test]
@@ -2204,10 +2195,10 @@ fn ensure_authorization_admin_remove_origin_with_assert_permission_throws_error(
 		));
 
 		// delegate has ASSERT permission and not ADMIN
-		assert_err!(Registries::ensure_authorization_admin_remove_origin(
-			&delegator_id,
-			&delegate
-		), Error::<Test>::UnauthorizedOperation);
+		assert_err!(
+			Registries::ensure_authorization_admin_remove_origin(&delegator_id, &delegate),
+			Error::<Test>::UnauthorizedOperation
+		);
 	});
 }
 
@@ -2265,10 +2256,10 @@ fn ensure_authorization_admin_remove_origin_with_delegate_permission_throws_erro
 		));
 
 		// delegate has DELEGATOR permission and not ADMIN
-		assert_err!(Registries::ensure_authorization_admin_remove_origin(
-			&delegator_id,
-			&delegate
-		), Error::<Test>::UnauthorizedOperation);
+		assert_err!(
+			Registries::ensure_authorization_admin_remove_origin(&delegator_id, &delegate),
+			Error::<Test>::UnauthorizedOperation
+		);
 	});
 }
 
@@ -2284,7 +2275,8 @@ fn add_delegate_throws_error_for_incorrect_registry_id() {
 		.expect("Test blob should fit into the expected input length of for the test runtime.");
 
 	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
-	let incorrect_registry_digest = <Test as frame_system::Config>::Hashing::hash(&incorrect_registry.encode()[..]);
+	let incorrect_registry_digest =
+		<Test as frame_system::Config>::Hashing::hash(&incorrect_registry.encode()[..]);
 
 	let id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
@@ -2292,7 +2284,7 @@ fn add_delegate_throws_error_for_incorrect_registry_id() {
 	let incorrect_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&incorrect_registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
 	);
-	
+
 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
 	let incorrect_registry_id: RegistryIdOf = generate_registry_id::<Test>(&incorrect_id_digest);
 
@@ -2308,7 +2300,7 @@ fn add_delegate_throws_error_for_incorrect_registry_id() {
 	let schema_id_digest = <Test as frame_system::Config>::Hashing::hash(&schema.encode()[..]);
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
-	new_test_ext().execute_with( || {
+	new_test_ext().execute_with(|| {
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_id.clone(),
@@ -2342,7 +2334,8 @@ fn add_admin_delegate_throws_error_for_incorrect_registry_id() {
 		.expect("Test blob should fit into the expected input length of for the test runtime.");
 
 	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
-	let incorrect_registry_digest = <Test as frame_system::Config>::Hashing::hash(&incorrect_registry.encode()[..]);
+	let incorrect_registry_digest =
+		<Test as frame_system::Config>::Hashing::hash(&incorrect_registry.encode()[..]);
 
 	let id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
@@ -2350,7 +2343,7 @@ fn add_admin_delegate_throws_error_for_incorrect_registry_id() {
 	let incorrect_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&incorrect_registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
 	);
-	
+
 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
 	let incorrect_registry_id: RegistryIdOf = generate_registry_id::<Test>(&incorrect_id_digest);
 
@@ -2366,7 +2359,7 @@ fn add_admin_delegate_throws_error_for_incorrect_registry_id() {
 	let schema_id_digest = <Test as frame_system::Config>::Hashing::hash(&schema.encode()[..]);
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
-	new_test_ext().execute_with( || {
+	new_test_ext().execute_with(|| {
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_id.clone(),
@@ -2400,7 +2393,8 @@ fn add_delegator_throws_error_for_incorrect_registry_id() {
 		.expect("Test blob should fit into the expected input length of for the test runtime.");
 
 	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
-	let incorrect_registry_digest = <Test as frame_system::Config>::Hashing::hash(&incorrect_registry.encode()[..]);
+	let incorrect_registry_digest =
+		<Test as frame_system::Config>::Hashing::hash(&incorrect_registry.encode()[..]);
 
 	let id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
@@ -2408,7 +2402,7 @@ fn add_delegator_throws_error_for_incorrect_registry_id() {
 	let incorrect_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&incorrect_registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
 	);
-	
+
 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
 	let incorrect_registry_id: RegistryIdOf = generate_registry_id::<Test>(&incorrect_id_digest);
 
@@ -2424,7 +2418,7 @@ fn add_delegator_throws_error_for_incorrect_registry_id() {
 	let schema_id_digest = <Test as frame_system::Config>::Hashing::hash(&schema.encode()[..]);
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
-	new_test_ext().execute_with( || {
+	new_test_ext().execute_with(|| {
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_id.clone(),
@@ -2457,8 +2451,9 @@ fn revoking_a_registry_with_incorrect_registry_id_should_fail() {
 		.expect("Test blob should fit into the expected input length of for the test runtime.");
 
 	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
-	let incorrect_registry_digest = <Test as frame_system::Config>::Hashing::hash(&incorrect_registry.encode()[..]);
-	
+	let incorrect_registry_digest =
+		<Test as frame_system::Config>::Hashing::hash(&incorrect_registry.encode()[..]);
+
 	let id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
 	);
@@ -2481,7 +2476,7 @@ fn revoking_a_registry_with_incorrect_registry_id_should_fail() {
 	let schema_id_digest = <Test as frame_system::Config>::Hashing::hash(&schema.encode()[..]);
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
-	new_test_ext().execute_with( || {
+	new_test_ext().execute_with(|| {
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_id.clone(),
@@ -2513,7 +2508,8 @@ fn reinstating_with_incorrect_registry_id_should_fail() {
 		.expect("Test blob should fit into the expected input length of for the test runtime.");
 
 	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
-	let incorrect_registry_digest = <Test as frame_system::Config>::Hashing::hash(&incorrect_registry.encode()[..]);
+	let incorrect_registry_digest =
+		<Test as frame_system::Config>::Hashing::hash(&incorrect_registry.encode()[..]);
 
 	let id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
@@ -2554,12 +2550,14 @@ fn reinstating_with_incorrect_registry_id_should_fail() {
 		));
 
 		// Entering incorrect registry id should throw an error
-		assert_err!(Registries::reinstate(
-			frame_system::RawOrigin::Signed(creator.clone()).into(),
-			incorrect_registry_id.clone(),
-			authorization_id.clone(),
-		),
-		Error::<Test>::UnauthorizedOperation);
+		assert_err!(
+			Registries::reinstate(
+				frame_system::RawOrigin::Signed(creator.clone()).into(),
+				incorrect_registry_id.clone(),
+				authorization_id.clone(),
+			),
+			Error::<Test>::UnauthorizedOperation
+		);
 	});
 }
 
@@ -2574,7 +2572,8 @@ fn archiving_with_incorrect_registry_id_should_fail() {
 		.expect("Test blob should fit into the expected input length of for the test runtime.");
 
 	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
-	let incorrect_registry_digest = <Test as frame_system::Config>::Hashing::hash(&incorrect_registry.encode()[..]);
+	let incorrect_registry_digest =
+		<Test as frame_system::Config>::Hashing::hash(&incorrect_registry.encode()[..]);
 
 	let id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
@@ -2609,12 +2608,14 @@ fn archiving_with_incorrect_registry_id_should_fail() {
 		));
 
 		// Entering incorrect registry id should throw an error
-		assert_err!(Registries::archive(
-			frame_system::RawOrigin::Signed(creator.clone()).into(),
-			incorrect_registry_id.clone(),
-			authorization_id.clone(),
-		)
-		, Error::<Test>::UnauthorizedOperation);
+		assert_err!(
+			Registries::archive(
+				frame_system::RawOrigin::Signed(creator.clone()).into(),
+				incorrect_registry_id.clone(),
+				authorization_id.clone(),
+			),
+			Error::<Test>::UnauthorizedOperation
+		);
 	});
 }
 
@@ -2629,7 +2630,8 @@ fn restoring_an_archived_registry_with_incorrect_registry_id_should_fail() {
 		.expect("Test blob should fit into the expected input length of for the test runtime.");
 
 	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
-	let incorrect_registry_digest = <Test as frame_system::Config>::Hashing::hash(&incorrect_registry.encode()[..]);
+	let incorrect_registry_digest =
+		<Test as frame_system::Config>::Hashing::hash(&incorrect_registry.encode()[..]);
 
 	let id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
@@ -2670,12 +2672,14 @@ fn restoring_an_archived_registry_with_incorrect_registry_id_should_fail() {
 		));
 
 		// Entering incorrect registry id should throw an error
-		assert_err!(Registries::restore(
-			frame_system::RawOrigin::Signed(creator.clone()).into(),
-			incorrect_registry_id.clone(),
-			authorization_id.clone(),
-		),
-		Error::<Test>::UnauthorizedOperation);
+		assert_err!(
+			Registries::restore(
+				frame_system::RawOrigin::Signed(creator.clone()).into(),
+				incorrect_registry_id.clone(),
+				authorization_id.clone(),
+			),
+			Error::<Test>::UnauthorizedOperation
+		);
 	});
 }
 
@@ -2691,7 +2695,8 @@ fn remove_delegate_should_fail_for_incorrect_registry_id() {
 		.expect("Test blob should fit into the expected input length of for the test runtime.");
 
 	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
-	let incorrect_registry_digest = <Test as frame_system::Config>::Hashing::hash(&incorrect_registry.encode()[..]);
+	let incorrect_registry_digest =
+		<Test as frame_system::Config>::Hashing::hash(&incorrect_registry.encode()[..]);
 
 	let id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
@@ -2699,7 +2704,7 @@ fn remove_delegate_should_fail_for_incorrect_registry_id() {
 	let incorrect_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&incorrect_registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
 	);
-	
+
 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
 	let incorrect_registry_id: RegistryIdOf = generate_registry_id::<Test>(&incorrect_id_digest);
 
@@ -2722,7 +2727,7 @@ fn remove_delegate_should_fail_for_incorrect_registry_id() {
 	let schema_id_digest = <Test as frame_system::Config>::Hashing::hash(&schema.encode()[..]);
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
-	new_test_ext().execute_with( || {
+	new_test_ext().execute_with(|| {
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_id.clone(),
@@ -2750,4 +2755,3 @@ fn remove_delegate_should_fail_for_incorrect_registry_id() {
 		);
 	});
 }
-
