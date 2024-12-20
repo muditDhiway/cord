@@ -1352,11 +1352,11 @@ fn ensure_authorization_origin_with_delegate_permission_throws_error() {
 
 	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
-	let delegator_id_digest = <Test as frame_system::Config>::Hashing::hash(
+	let delegate_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &delegate.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let delegator_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegator_id_digest);
+	let delegate_authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegate_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -1383,7 +1383,7 @@ fn ensure_authorization_origin_with_delegate_permission_throws_error() {
 
 		// delegate has DELEGATOR permission and not ASSERT
 		assert_err!(
-			Registries::ensure_authorization_origin(&delegator_id, &delegate),
+			Registries::ensure_authorization_origin(&delegate_authorization_id, &delegate),
 			Error::<Test>::UnauthorizedOperation
 		);
 	});
@@ -1413,11 +1413,11 @@ fn ensure_authorization_origin_with_admin_permission_throws_error() {
 
 	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
-	let delegator_id_digest = <Test as frame_system::Config>::Hashing::hash(
+	let delegate_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &delegate.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let delegator_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegator_id_digest);
+	let delegate_authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegate_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -1444,7 +1444,7 @@ fn ensure_authorization_origin_with_admin_permission_throws_error() {
 
 		// delegate has ADMIN permission and not ASSERT
 		assert_err!(
-			Registries::ensure_authorization_origin(&delegator_id, &delegate),
+			Registries::ensure_authorization_origin(&delegate_authorization_id, &delegate),
 			Error::<Test>::UnauthorizedOperation
 		);
 	});
@@ -1522,11 +1522,11 @@ fn ensure_authorization_reinstate_origin_with_assert_permission_throws_error() {
 
 	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
-	let delegator_id_digest = <Test as frame_system::Config>::Hashing::hash(
+	let delegate_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &delegate.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let delegator_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegator_id_digest);
+	let delegate_authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegate_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -1559,7 +1559,7 @@ fn ensure_authorization_reinstate_origin_with_assert_permission_throws_error() {
 
 		// delegate has ASSERT permission and not ADMIN
 		assert_err!(
-			Registries::ensure_authorization_reinstate_origin(&delegator_id, &delegate),
+			Registries::ensure_authorization_reinstate_origin(&delegate_authorization_id, &delegate),
 			Error::<Test>::UnauthorizedOperation
 		);
 	});
@@ -1589,11 +1589,11 @@ fn ensure_authorization_reinstate_origin_with_delegate_permission_throws_error()
 
 	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
-	let delegator_id_digest = <Test as frame_system::Config>::Hashing::hash(
+	let delegate_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &delegate.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let delegator_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegator_id_digest);
+	let delegate_authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegate_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -1626,7 +1626,7 @@ fn ensure_authorization_reinstate_origin_with_delegate_permission_throws_error()
 
 		// delegate has DELEGATOR permission and not ADMIN
 		assert_err!(
-			Registries::ensure_authorization_reinstate_origin(&delegator_id, &delegate),
+			Registries::ensure_authorization_reinstate_origin(&delegate_authorization_id, &delegate),
 			Error::<Test>::UnauthorizedOperation
 		);
 	});
@@ -1704,11 +1704,11 @@ fn ensure_authorization_restore_origin_with_assert_permission_throws_error() {
 
 	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
-	let delegator_id_digest = <Test as frame_system::Config>::Hashing::hash(
+	let delegate_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &delegate.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let delegator_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegator_id_digest);
+	let delegate_authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegate_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -1741,7 +1741,7 @@ fn ensure_authorization_restore_origin_with_assert_permission_throws_error() {
 
 		// delegate has ASSERT permission and not ADMIN
 		assert_err!(
-			Registries::ensure_authorization_restore_origin(&delegator_id, &delegate),
+			Registries::ensure_authorization_restore_origin(&delegate_authorization_id, &delegate),
 			Error::<Test>::UnauthorizedOperation
 		);
 	});
@@ -1771,11 +1771,11 @@ fn ensure_authorization_restore_origin_with_delegate_permission_throws_error() {
 
 	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
-	let delegator_id_digest = <Test as frame_system::Config>::Hashing::hash(
+	let delegate_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &delegate.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let delegator_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegator_id_digest);
+	let delegate_authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegate_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -1808,7 +1808,7 @@ fn ensure_authorization_restore_origin_with_delegate_permission_throws_error() {
 
 		// delegate has DELEGATOR permission and not ADMIN
 		assert_err!(
-			Registries::ensure_authorization_restore_origin(&delegator_id, &delegate),
+			Registries::ensure_authorization_restore_origin(&delegate_authorization_id, &delegate),
 			Error::<Test>::UnauthorizedOperation
 		);
 	});
@@ -1886,11 +1886,11 @@ fn ensure_authorization_admin_origin_with_assert_permission_throws_error() {
 
 	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
-	let delegator_id_digest = <Test as frame_system::Config>::Hashing::hash(
+	let delegate_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &delegate.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let delegator_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegator_id_digest);
+	let delegate_authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegate_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -1917,7 +1917,7 @@ fn ensure_authorization_admin_origin_with_assert_permission_throws_error() {
 
 		// delegate has ASSERT permission and not ADMIN
 		assert_err!(
-			Registries::ensure_authorization_admin_origin(&delegator_id, &delegate),
+			Registries::ensure_authorization_admin_origin(&delegate_authorization_id, &delegate),
 			Error::<Test>::UnauthorizedOperation
 		);
 	});
@@ -1947,11 +1947,11 @@ fn ensure_authorization_admin_origin_with_delegate_permission_throws_error() {
 
 	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
-	let delegator_id_digest = <Test as frame_system::Config>::Hashing::hash(
+	let delegate_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &delegate.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let delegator_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegator_id_digest);
+	let delegate_authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegate_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -1978,7 +1978,7 @@ fn ensure_authorization_admin_origin_with_delegate_permission_throws_error() {
 
 		// delegate has DELEGATOR permission and not ADMIN
 		assert_err!(
-			Registries::ensure_authorization_admin_origin(&delegator_id, &delegate),
+			Registries::ensure_authorization_admin_origin(&delegate_authorization_id, &delegate),
 			Error::<Test>::UnauthorizedOperation
 		);
 	});
@@ -2056,11 +2056,11 @@ fn ensure_authorization_delegator_origin_with_assert_permission_throws_error() {
 
 	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
-	let delegator_id_digest = <Test as frame_system::Config>::Hashing::hash(
+	let delegate_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &delegate.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let delegator_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegator_id_digest);
+	let delegate_authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegate_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -2087,7 +2087,7 @@ fn ensure_authorization_delegator_origin_with_assert_permission_throws_error() {
 
 		// delegate has ASSERT permission and not DELEGATOR
 		assert_err!(
-			Registries::ensure_authorization_delegator_origin(&delegator_id, &delegate),
+			Registries::ensure_authorization_delegator_origin(&delegate_authorization_id, &delegate),
 			Error::<Test>::UnauthorizedOperation
 		);
 	});
@@ -2165,11 +2165,11 @@ fn ensure_authorization_admin_remove_origin_with_assert_permission_throws_error(
 
 	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
-	let delegator_id_digest = <Test as frame_system::Config>::Hashing::hash(
+	let delegate_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &delegate.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let delegator_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegator_id_digest);
+	let delegate_authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegate_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -2196,7 +2196,7 @@ fn ensure_authorization_admin_remove_origin_with_assert_permission_throws_error(
 
 		// delegate has ASSERT permission and not ADMIN
 		assert_err!(
-			Registries::ensure_authorization_admin_remove_origin(&delegator_id, &delegate),
+			Registries::ensure_authorization_admin_remove_origin(&delegate_authorization_id, &delegate),
 			Error::<Test>::UnauthorizedOperation
 		);
 	});
@@ -2226,11 +2226,11 @@ fn ensure_authorization_admin_remove_origin_with_delegate_permission_throws_erro
 
 	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
-	let delegator_id_digest = <Test as frame_system::Config>::Hashing::hash(
+	let delegate_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &delegate.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let delegator_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegator_id_digest);
+	let delegate_authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&delegate_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -2257,7 +2257,7 @@ fn ensure_authorization_admin_remove_origin_with_delegate_permission_throws_erro
 
 		// delegate has DELEGATOR permission and not ADMIN
 		assert_err!(
-			Registries::ensure_authorization_admin_remove_origin(&delegator_id, &delegate),
+			Registries::ensure_authorization_admin_remove_origin(&delegate_authorization_id, &delegate),
 			Error::<Test>::UnauthorizedOperation
 		);
 	});
