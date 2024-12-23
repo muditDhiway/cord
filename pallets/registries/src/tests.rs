@@ -1433,13 +1433,7 @@ fn revoke_should_fail_if_admin_authorization_is_not_found() {
 		81, 49, 7, 144, 99, 182, 241, 123, 56, 76, 190, 204,
 	];
 
-	let auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
-		&[&registry_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
-	);
-
 	let gibberish_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&gibberish[..]);
-
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
 	let gibberish_authorization_id: AuthorizationIdOf =
 		generate_authorization_id::<Test>(&gibberish_auth_id_digest);
@@ -1474,7 +1468,6 @@ fn revoke_should_fail_if_admin_authorization_is_not_found() {
 #[test]
 fn reinstate_should_fail_if_admin_authorization_is_not_found() {
 	let creator = ACCOUNT_00;
-	let delegate = ACCOUNT_01;
 	let registry = [2u8; 256].to_vec();
 
 	let raw_blob = [2u8; 256].to_vec();
@@ -1566,13 +1559,7 @@ fn update_should_fail_if_admin_authorization_is_not_found() {
 		81, 49, 7, 144, 99, 182, 241, 123, 56, 76, 190, 204,
 	];
 
-	let auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
-		&[&registry_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
-	);
-
 	let gibberish_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&gibberish[..]);
-
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
 	let gibberish_authorization_id: AuthorizationIdOf =
 		generate_authorization_id::<Test>(&gibberish_auth_id_digest);
@@ -1628,13 +1615,7 @@ fn archive_should_fail_if_admin_authorization_is_not_found() {
 		81, 49, 7, 144, 99, 182, 241, 123, 56, 76, 190, 204,
 	];
 
-	let auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
-		&[&registry_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
-	);
-
 	let gibberish_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&gibberish[..]);
-
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
 	let gibberish_authorization_id: AuthorizationIdOf =
 		generate_authorization_id::<Test>(&gibberish_auth_id_digest);
@@ -1669,7 +1650,6 @@ fn archive_should_fail_if_admin_authorization_is_not_found() {
 #[test]
 fn restore_should_fail_if_admin_authorization_is_not_found() {
 	let creator = ACCOUNT_00;
-	let delegate = ACCOUNT_01;
 	let registry = [2u8; 256].to_vec();
 
 	let raw_blob = [2u8; 256].to_vec();
