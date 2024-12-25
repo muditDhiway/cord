@@ -1205,3 +1205,40 @@ fn update_registry_should_succeed() {
 		);
 	});
 }
+
+// Setup: change 'MaxRegistryDelegates' in 'mock.rs' to 0 for this test. Make sure to comment other tests. 
+// #[test]
+// fn create_should_fail_if_registry_delegates_limit_exceeded() {
+// 	let creator = ACCOUNT_00;
+// 	let registry = [2u8; 256].to_vec();
+
+// 	let raw_blob = [2u8; 256].to_vec();
+// 	let blob: RegistryBlobOf<Test> = BoundedVec::try_from(raw_blob)
+// 		.expect("Test blob should fit into the expected input length of for the test runtime.");
+
+// 	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
+
+// 	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+// 		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
+// 	);
+
+// 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
+
+// 	let raw_schema = [2u8; 256].to_vec();
+// 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
+// 		.expect("Test Schema should fit into the expected input length of for the test runtime.");
+// 	let _digest: SchemaHashOf<Test> = <Test as frame_system::Config>::Hashing::hash(&schema[..]);
+// 	let schema_id_digest = <Test as frame_system::Config>::Hashing::hash(&schema.encode()[..]);
+// 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
+
+// 	new_test_ext().execute_with(|| {
+// 		assert_err!(Registries::create(
+// 			frame_system::RawOrigin::Signed(creator.clone()).into(),
+// 			registry_id.clone(),
+// 			registry_digest,
+// 			Some(schema_id),
+// 			Some(blob),
+// 		),
+// 		Error::<Test>::RegistryDelegatesLimitExceeded);
+// 	});
+// }
