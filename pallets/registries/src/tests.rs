@@ -1185,82 +1185,7 @@ fn add_delegate_should_fail_if_registry_delegates_limit_exceeded() {
 
 	let raw_blob = [2u8; 256].to_vec();
 	let blob: RegistryBlobOf<Test> = BoundedVec::try_from(raw_blob)
-<<<<<<< HEAD
 		.expect("Test blob should fit into the expected input length of for the test runtime.");
-=======
-		.expect("Test blob should fit into the expected input length for the test runtime.");
-
-	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
-
-	let id_digest = <Test as frame_system::Config>::Hashing::hash(
-		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
-	);
-
-	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
-
-	let auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
-		&[&registry_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
-	);
-
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
-	
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
-
-	let non_existent_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
-
-	let delegate_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
-		&[&registry_id.encode()[..], &delegate.encode()[..], &creator.encode()[..]].concat()[..],
-	);
-
-	let delegate_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&delegate_auth_id_digest);
-
-	let raw_schema = [2u8; 256].to_vec();
-	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
-		.expect("Test Schema should fit into the expected input length for the test runtime.");
-	let _digest: SchemaHashOf<Test> = <Test as frame_system::Config>::Hashing::hash(&schema[..]);
-	let schema_id_digest = <Test as frame_system::Config>::Hashing::hash(&schema.encode()[..]);
-	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
-
-	new_test_ext().execute_with(|| {
-		assert_ok!(Registries::create(
-			frame_system::RawOrigin::Signed(creator.clone()).into(),
-			registry_id.clone(),
-			registry_digest,
-			Some(schema_id),
-			Some(blob.clone()),
-		));
-
-		assert_ok!(Registries::add_delegate(
-			frame_system::RawOrigin::Signed(creator.clone()).into(),
-			registry_id.clone(),
-			delegate.clone(),
-			authorization_id.clone(),
-		));
-
-		assert_err!(
-			Registries::remove_delegate(
-				frame_system::RawOrigin::Signed(creator.clone()).into(),
-				registry_id.clone(),
-				delegate_authorization_id,
-				non_existent_authorization_id.clone(),
-			),
-			Error::<Test>::AuthorizationNotFound
-		);
-	});
-}
-
-#[test]
-fn remove_delegate_should_fail_if_remove_authorization_is_not_found_as_delegate_not_added() {
-	let creator = ACCOUNT_00;
-	let delegate = ACCOUNT_01;
-	let registry = [2u8; 256].to_vec();
-
-	let raw_blob = [2u8; 256].to_vec();
-	let blob: RegistryBlobOf<Test> = BoundedVec::try_from(raw_blob)
-		.expect("Test blob should fit into the expected input length for the test runtime.");
->>>>>>> 16c7130 (replace random bytes with definite value)
 
 	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
 
@@ -1345,15 +1270,6 @@ fn add_admin_delegate_should_fail_if_registry_delegates_limit_exceeded() {
 
 	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
-<<<<<<< HEAD
-=======
-	let non_existent_auth_id_digest =
-		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
-
-	let non_existent_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
-
->>>>>>> 16c7130 (replace random bytes with definite value)
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
 		.expect("Test Schema should fit into the expected input length of for the test runtime.");
@@ -1376,7 +1292,6 @@ fn add_admin_delegate_should_fail_if_registry_delegates_limit_exceeded() {
 			assert_ok!(Registries::add_delegate(
 				frame_system::RawOrigin::Signed(creator.clone()).into(),
 				registry_id.clone(),
-<<<<<<< HEAD
 				delegate.clone(),
 				authorization_id.clone(),
 			));
@@ -1389,9 +1304,6 @@ fn add_admin_delegate_should_fail_if_registry_delegates_limit_exceeded() {
 				frame_system::RawOrigin::Signed(creator.clone()).into(),
 				registry_id.clone(),
 				delegate_5.clone(),
-=======
-				non_existent_authorization_id,
->>>>>>> 16c7130 (replace random bytes with definite value)
 				authorization_id.clone(),
 			),
 			Error::<Test>::RegistryDelegatesLimitExceeded
@@ -1421,74 +1333,12 @@ fn add_delegator_should_fail_if_registry_delegates_limit_exceeded() {
 
 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
 
-<<<<<<< HEAD
-=======
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
-
-	let non_existent_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
-
-	let raw_schema = [2u8; 256].to_vec();
-	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
-		.expect("Test Schema should fit into the expected input length for the test runtime.");
-	let _digest: SchemaHashOf<Test> = <Test as frame_system::Config>::Hashing::hash(&schema[..]);
-	let schema_id_digest = <Test as frame_system::Config>::Hashing::hash(&schema.encode()[..]);
-	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
-
-	new_test_ext().execute_with(|| {
-		assert_ok!(Registries::create(
-			frame_system::RawOrigin::Signed(creator.clone()).into(),
-			registry_id.clone(),
-			registry_digest,
-			Some(schema_id),
-			Some(blob.clone()),
-		));
-
-		assert_err!(
-			Registries::revoke(
-				frame_system::RawOrigin::Signed(creator.clone()).into(),
-				registry_id.clone(),
-				non_existent_authorization_id.clone(),
-			),
-			Error::<Test>::AuthorizationNotFound
-		);
-	});
-}
-
-#[test]
-fn reinstate_should_fail_if_admin_authorization_is_not_found() {
-	let creator = ACCOUNT_00;
-	let registry = [2u8; 256].to_vec();
-
-	let raw_blob = [2u8; 256].to_vec();
-	let blob: RegistryBlobOf<Test> = BoundedVec::try_from(raw_blob)
-		.expect("Test blob should fit into the expected input length for the test runtime.");
-
-	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
-
-	let id_digest = <Test as frame_system::Config>::Hashing::hash(
-		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
-	);
-
-	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
-
->>>>>>> 16c7130 (replace random bytes with definite value)
 	let auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-<<<<<<< HEAD
 	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
-=======
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
-
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
-
-	let non_existent_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
-
->>>>>>> 16c7130 (replace random bytes with definite value)
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
 		.expect("Test Schema should fit into the expected input length of for the test runtime.");
@@ -1511,63 +1361,10 @@ fn reinstate_should_fail_if_admin_authorization_is_not_found() {
 			assert_ok!(Registries::add_delegate(
 				frame_system::RawOrigin::Signed(creator.clone()).into(),
 				registry_id.clone(),
-<<<<<<< HEAD
 				delegate.clone(),
 				authorization_id.clone(),
 			));
 		}
-=======
-				non_existent_authorization_id.clone(),
-			),
-			Error::<Test>::AuthorizationNotFound
-		);
-	});
-}
-
-#[test]
-fn update_should_fail_if_admin_authorization_is_not_found() {
-	let creator = ACCOUNT_00;
-	let registry = [2u8; 256].to_vec();
-	let new_digest =
-		<Test as frame_system::Config>::Hashing::hash(&[3u8; 256].to_vec().encode()[..]);
-
-	let raw_blob = [2u8; 256].to_vec();
-	let initial_blob: RegistryBlobOf<Test> = BoundedVec::try_from(raw_blob.clone())
-		.expect("Test Blob should fit into the expected input length for the test runtime.");
-
-	let new_raw_blob = [4u8; 256].to_vec();
-	let new_blob: RegistryBlobOf<Test> = BoundedVec::try_from(new_raw_blob.clone())
-		.expect("New Test Blob should fit into the expected input length for the test runtime.");
-
-	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
-
-	let id_digest = <Test as frame_system::Config>::Hashing::hash(
-		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
-	);
-
-	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
-
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
-
-	let non_existent_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
-
-	let raw_schema = [2u8; 256].to_vec();
-	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
-		.expect("Test Schema should fit into the expected input length for the test runtime.");
-	let _digest: SchemaHashOf<Test> = <Test as frame_system::Config>::Hashing::hash(&schema[..]);
-	let schema_id_digest = <Test as frame_system::Config>::Hashing::hash(&schema.encode()[..]);
-	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
-
-	new_test_ext().execute_with(|| {
-		assert_ok!(Registries::create(
-			frame_system::RawOrigin::Signed(creator.clone()).into(),
-			registry_id.clone(),
-			registry_digest,
-			Some(schema_id),
-			Some(initial_blob),
-		));
->>>>>>> 16c7130 (replace random bytes with definite value)
 
 		// Attempt to add a delegator, which should exceed the limit and result in the
 		// expected error
@@ -1575,301 +1372,10 @@ fn update_should_fail_if_admin_authorization_is_not_found() {
 			Registries::add_delegator(
 				frame_system::RawOrigin::Signed(creator.clone()).into(),
 				registry_id.clone(),
-<<<<<<< HEAD
 				delegate_5.clone(),
 				authorization_id.clone(),
-=======
-				new_digest,
-				Some(new_blob.clone()),
-				non_existent_authorization_id.clone(),
->>>>>>> 16c7130 (replace random bytes with definite value)
 			),
 			Error::<Test>::RegistryDelegatesLimitExceeded
 		);
 	});
-<<<<<<< HEAD
 }
-=======
-}
-
-#[test]
-fn archive_should_fail_if_admin_authorization_is_not_found() {
-	let creator = ACCOUNT_00;
-	let registry = [2u8; 256].to_vec();
-
-	let raw_blob = [2u8; 256].to_vec();
-	let blob: RegistryBlobOf<Test> = BoundedVec::try_from(raw_blob)
-		.expect("Test blob should fit into the expected input length for the test runtime.");
-
-	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
-
-	let id_digest = <Test as frame_system::Config>::Hashing::hash(
-		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
-	);
-
-	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
-
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
-
-	let non_existent_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
-
-	let raw_schema = [2u8; 256].to_vec();
-	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
-		.expect("Test Schema should fit into the expected input length for the test runtime.");
-	let _digest: SchemaHashOf<Test> = <Test as frame_system::Config>::Hashing::hash(&schema[..]);
-	let schema_id_digest = <Test as frame_system::Config>::Hashing::hash(&schema.encode()[..]);
-	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
-
-	new_test_ext().execute_with(|| {
-		assert_ok!(Registries::create(
-			frame_system::RawOrigin::Signed(creator.clone()).into(),
-			registry_id.clone(),
-			registry_digest,
-			Some(schema_id),
-			Some(blob.clone()),
-		));
-
-		assert_err!(
-			Registries::archive(
-				frame_system::RawOrigin::Signed(creator.clone()).into(),
-				registry_id.clone(),
-				non_existent_authorization_id.clone(),
-			),
-			Error::<Test>::AuthorizationNotFound
-		);
-	});
-}
-
-#[test]
-fn restore_should_fail_if_admin_authorization_is_not_found() {
-	let creator = ACCOUNT_00;
-	let registry = [2u8; 256].to_vec();
-
-	let raw_blob = [2u8; 256].to_vec();
-	let blob: RegistryBlobOf<Test> = BoundedVec::try_from(raw_blob)
-		.expect("Test blob should fit into the expected input length for the test runtime.");
-
-	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
-
-	let id_digest = <Test as frame_system::Config>::Hashing::hash(
-		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
-	);
-
-	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
-
-	let auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
-		&[&registry_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
-	);
-
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
-
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
-
-	let non_existent_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
-
-	let raw_schema = [2u8; 256].to_vec();
-	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
-		.expect("Test Schema should fit into the expected input length for the test runtime.");
-	let _digest: SchemaHashOf<Test> = <Test as frame_system::Config>::Hashing::hash(&schema[..]);
-	let schema_id_digest = <Test as frame_system::Config>::Hashing::hash(&schema.encode()[..]);
-	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
-
-	new_test_ext().execute_with(|| {
-		assert_ok!(Registries::create(
-			frame_system::RawOrigin::Signed(creator.clone()).into(),
-			registry_id.clone(),
-			registry_digest,
-			Some(schema_id),
-			Some(blob.clone()),
-		));
-
-		assert_ok!(Registries::archive(
-			frame_system::RawOrigin::Signed(creator.clone()).into(),
-			registry_id.clone(),
-			authorization_id.clone(),
-		));
-
-		assert_err!(
-			Registries::restore(
-				frame_system::RawOrigin::Signed(creator.clone()).into(),
-				registry_id.clone(),
-				non_existent_authorization_id.clone(),
-			),
-			Error::<Test>::AuthorizationNotFound
-		);
-	});
-}
-
-#[test]
-fn ensure_authorization_origin_should_fail_if_authorization_is_not_found() {
-	let creator = ACCOUNT_00;
-	let delegate = ACCOUNT_01;
-	let registry = [2u8; 256].to_vec();
-
-	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
-
-	let id_digest = <Test as frame_system::Config>::Hashing::hash(
-		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
-	);
-
-	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
-
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
-
-	let non_existent_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
-
-	new_test_ext().execute_with(|| {
-		assert_err!(
-			Registries::ensure_authorization_origin(&non_existent_authorization_id, &delegate),
-			Error::<Test>::AuthorizationNotFound
-		);
-	});
-}
-
-#[test]
-fn ensure_authorization_reinstate_origin_should_fail_if_authorization_is_not_found() {
-	let creator = ACCOUNT_00;
-	let delegate = ACCOUNT_01;
-	let registry = [2u8; 256].to_vec();
-
-	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
-
-	let id_digest = <Test as frame_system::Config>::Hashing::hash(
-		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
-	);
-
-	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
-
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
-
-	let non_existent_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
-
-	new_test_ext().execute_with(|| {
-		assert_err!(
-			Registries::ensure_authorization_reinstate_origin(
-				&non_existent_authorization_id,
-				&delegate
-			),
-			Error::<Test>::AuthorizationNotFound
-		);
-	});
-}
-
-#[test]
-fn ensure_authorization_restore_origin_should_fail_if_authorization_is_not_found() {
-	let creator = ACCOUNT_00;
-	let delegate = ACCOUNT_01;
-	let registry = [2u8; 256].to_vec();
-
-	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
-
-	let id_digest = <Test as frame_system::Config>::Hashing::hash(
-		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
-	);
-
-	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
-
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
-
-	let non_existent_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
-
-	new_test_ext().execute_with(|| {
-		assert_err!(
-			Registries::ensure_authorization_restore_origin(&non_existent_authorization_id, &delegate),
-			Error::<Test>::AuthorizationNotFound
-		);
-	});
-}
-
-#[test]
-fn ensure_authorization_admin_origin_should_fail_if_authorization_is_not_found() {
-	let creator = ACCOUNT_00;
-	let delegate = ACCOUNT_01;
-	let registry = [2u8; 256].to_vec();
-
-	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
-
-	let id_digest = <Test as frame_system::Config>::Hashing::hash(
-		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
-	);
-
-	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
-
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
-
-	let non_existent_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
-
-	new_test_ext().execute_with(|| {
-		assert_err!(
-			Registries::ensure_authorization_admin_origin(&non_existent_authorization_id, &delegate),
-			Error::<Test>::AuthorizationNotFound
-		);
-	});
-}
-
-#[test]
-fn ensure_authorization_delegator_origin_should_fail_if_authorization_is_not_found() {
-	let creator = ACCOUNT_00;
-	let delegate = ACCOUNT_01;
-	let registry = [2u8; 256].to_vec();
-
-	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
-
-	let id_digest = <Test as frame_system::Config>::Hashing::hash(
-		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
-	);
-
-	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
-
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
-
-	let non_existent_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
-
-	new_test_ext().execute_with(|| {
-		assert_err!(
-			Registries::ensure_authorization_delegator_origin(
-				&non_existent_authorization_id,
-				&delegate
-			),
-			Error::<Test>::AuthorizationNotFound
-		);
-	});
-}
-
-#[test]
-fn ensure_authorization_admin_remove_origin_should_fail_if_authorization_is_not_found() {
-	let creator = ACCOUNT_00;
-	let delegate = ACCOUNT_01;
-	let registry = [2u8; 256].to_vec();
-
-	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
-
-	let id_digest = <Test as frame_system::Config>::Hashing::hash(
-		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
-	);
-
-	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
-
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
-
-	let non_existent_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
-
-	new_test_ext().execute_with(|| {
-		assert_err!(
-			Registries::ensure_authorization_admin_remove_origin(
-				&non_existent_authorization_id,
-				&delegate
-			),
-			Error::<Test>::AuthorizationNotFound
-		);
-	});
-}
->>>>>>> 16c7130 (replace random bytes with definite value)
