@@ -1224,21 +1224,16 @@ fn remove_delegate_should_fail_if_admin_authorization_is_not_found() {
 
 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
 
-	let gibberish: Vec<u8> = vec![
-		42, 88, 173, 15, 94, 201, 120, 66, 33, 155, 77, 200, 11, 250, 92, 38, 63, 141, 222, 199,
-		81, 49, 7, 144, 99, 182, 241, 123, 56, 76, 190, 204,
-	];
-
 	let auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let gibberish_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&gibberish[..]);
-
+	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
+	
 	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
-	let gibberish_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&gibberish_auth_id_digest);
+	let non_existent_authorization_id: AuthorizationIdOf =
+		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	let delegate_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &delegate.encode()[..], &creator.encode()[..]].concat()[..],
@@ -1275,7 +1270,7 @@ fn remove_delegate_should_fail_if_admin_authorization_is_not_found() {
 				frame_system::RawOrigin::Signed(creator.clone()).into(),
 				registry_id.clone(),
 				delegate_authorization_id,
-				gibberish_authorization_id.clone(),
+				non_existent_authorization_id.clone(),
 			),
 			Error::<Test>::AuthorizationNotFound
 		);
@@ -1365,16 +1360,11 @@ fn remove_delegate_should_fail_if_remove_authorization_is_not_found_as_gibberish
 
 	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
-	let gibberish: Vec<u8> = vec![
-		42, 88, 173, 15, 94, 201, 120, 66, 33, 155, 77, 200, 11, 250, 92, 38, 63, 141, 222, 199,
-		81, 49, 7, 144, 99, 182, 241, 123, 56, 76, 190, 204,
-	];
+	let non_existent_auth_id_digest =
+		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
-	let gibberish_delegate_auth_id_digest =
-		<Test as frame_system::Config>::Hashing::hash(&gibberish[..]);
-
-	let gibberish_delegate_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&gibberish_delegate_auth_id_digest);
+	let non_existent_authorization_id: AuthorizationIdOf =
+		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -1403,7 +1393,7 @@ fn remove_delegate_should_fail_if_remove_authorization_is_not_found_as_gibberish
 			Registries::remove_delegate(
 				frame_system::RawOrigin::Signed(creator.clone()).into(),
 				registry_id.clone(),
-				gibberish_delegate_authorization_id,
+				non_existent_authorization_id,
 				authorization_id.clone(),
 			),
 			Error::<Test>::AuthorizationNotFound
@@ -1428,15 +1418,10 @@ fn revoke_should_fail_if_admin_authorization_is_not_found() {
 
 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
 
-	let gibberish: Vec<u8> = vec![
-		42, 88, 173, 15, 94, 201, 120, 66, 33, 155, 77, 200, 11, 250, 92, 38, 63, 141, 222, 199,
-		81, 49, 7, 144, 99, 182, 241, 123, 56, 76, 190, 204,
-	];
+	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
-	let gibberish_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&gibberish[..]);
-
-	let gibberish_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&gibberish_auth_id_digest);
+	let non_existent_authorization_id: AuthorizationIdOf =
+		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -1458,7 +1443,7 @@ fn revoke_should_fail_if_admin_authorization_is_not_found() {
 			Registries::revoke(
 				frame_system::RawOrigin::Signed(creator.clone()).into(),
 				registry_id.clone(),
-				gibberish_authorization_id.clone(),
+				non_existent_authorization_id.clone(),
 			),
 			Error::<Test>::AuthorizationNotFound
 		);
@@ -1482,21 +1467,16 @@ fn reinstate_should_fail_if_admin_authorization_is_not_found() {
 
 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
 
-	let gibberish: Vec<u8> = vec![
-		42, 88, 173, 15, 94, 201, 120, 66, 33, 155, 77, 200, 11, 250, 92, 38, 63, 141, 222, 199,
-		81, 49, 7, 144, 99, 182, 241, 123, 56, 76, 190, 204,
-	];
-
 	let auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let gibberish_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&gibberish[..]);
+	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
 	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
-	let gibberish_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&gibberish_auth_id_digest);
+	let non_existent_authorization_id: AuthorizationIdOf =
+		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -1524,7 +1504,7 @@ fn reinstate_should_fail_if_admin_authorization_is_not_found() {
 			Registries::reinstate(
 				frame_system::RawOrigin::Signed(creator.clone()).into(),
 				registry_id.clone(),
-				gibberish_authorization_id.clone(),
+				non_existent_authorization_id.clone(),
 			),
 			Error::<Test>::AuthorizationNotFound
 		);
@@ -1554,15 +1534,10 @@ fn update_should_fail_if_admin_authorization_is_not_found() {
 
 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
 
-	let gibberish: Vec<u8> = vec![
-		42, 88, 173, 15, 94, 201, 120, 66, 33, 155, 77, 200, 11, 250, 92, 38, 63, 141, 222, 199,
-		81, 49, 7, 144, 99, 182, 241, 123, 56, 76, 190, 204,
-	];
+	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
-	let gibberish_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&gibberish[..]);
-
-	let gibberish_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&gibberish_auth_id_digest);
+	let non_existent_authorization_id: AuthorizationIdOf =
+		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -1586,7 +1561,7 @@ fn update_should_fail_if_admin_authorization_is_not_found() {
 				registry_id.clone(),
 				new_digest,
 				Some(new_blob.clone()),
-				gibberish_authorization_id.clone(),
+				non_existent_authorization_id.clone(),
 			),
 			Error::<Test>::AuthorizationNotFound
 		);
@@ -1610,15 +1585,10 @@ fn archive_should_fail_if_admin_authorization_is_not_found() {
 
 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
 
-	let gibberish: Vec<u8> = vec![
-		42, 88, 173, 15, 94, 201, 120, 66, 33, 155, 77, 200, 11, 250, 92, 38, 63, 141, 222, 199,
-		81, 49, 7, 144, 99, 182, 241, 123, 56, 76, 190, 204,
-	];
+	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
-	let gibberish_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&gibberish[..]);
-
-	let gibberish_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&gibberish_auth_id_digest);
+	let non_existent_authorization_id: AuthorizationIdOf =
+		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -1640,7 +1610,7 @@ fn archive_should_fail_if_admin_authorization_is_not_found() {
 			Registries::archive(
 				frame_system::RawOrigin::Signed(creator.clone()).into(),
 				registry_id.clone(),
-				gibberish_authorization_id.clone(),
+				non_existent_authorization_id.clone(),
 			),
 			Error::<Test>::AuthorizationNotFound
 		);
@@ -1664,21 +1634,16 @@ fn restore_should_fail_if_admin_authorization_is_not_found() {
 
 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
 
-	let gibberish: Vec<u8> = vec![
-		42, 88, 173, 15, 94, 201, 120, 66, 33, 155, 77, 200, 11, 250, 92, 38, 63, 141, 222, 199,
-		81, 49, 7, 144, 99, 182, 241, 123, 56, 76, 190, 204,
-	];
-
 	let auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let gibberish_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&gibberish[..]);
+	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
 	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
-	let gibberish_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&gibberish_auth_id_digest);
+	let non_existent_authorization_id: AuthorizationIdOf =
+		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -1706,7 +1671,7 @@ fn restore_should_fail_if_admin_authorization_is_not_found() {
 			Registries::restore(
 				frame_system::RawOrigin::Signed(creator.clone()).into(),
 				registry_id.clone(),
-				gibberish_authorization_id.clone(),
+				non_existent_authorization_id.clone(),
 			),
 			Error::<Test>::AuthorizationNotFound
 		);
@@ -1715,21 +1680,26 @@ fn restore_should_fail_if_admin_authorization_is_not_found() {
 
 #[test]
 fn ensure_authorization_origin_should_fail_if_authorization_is_not_found() {
-	let delegate = ACCOUNT_00;
+	let creator = ACCOUNT_00;
+	let delegate = ACCOUNT_01;
+	let registry = [2u8; 256].to_vec();
 
-	let gibberish: Vec<u8> = vec![
-		42, 88, 173, 15, 94, 201, 120, 66, 33, 155, 77, 200, 11, 250, 92, 38, 63, 141, 222, 199,
-		81, 49, 7, 144, 99, 182, 241, 123, 56, 76, 190, 204,
-	];
+	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
 
-	let gibberish_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&gibberish[..]);
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
+	);
 
-	let gibberish_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&gibberish_auth_id_digest);
+	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
+
+	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
+
+	let non_existent_authorization_id: AuthorizationIdOf =
+		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	new_test_ext().execute_with(|| {
 		assert_err!(
-			Registries::ensure_authorization_origin(&gibberish_authorization_id, &delegate),
+			Registries::ensure_authorization_origin(&non_existent_authorization_id, &delegate),
 			Error::<Test>::AuthorizationNotFound
 		);
 	});
@@ -1737,22 +1707,27 @@ fn ensure_authorization_origin_should_fail_if_authorization_is_not_found() {
 
 #[test]
 fn ensure_authorization_reinstate_origin_should_fail_if_authorization_is_not_found() {
-	let delegate = ACCOUNT_00;
+	let creator = ACCOUNT_00;
+	let delegate = ACCOUNT_01;
+	let registry = [2u8; 256].to_vec();
 
-	let gibberish: Vec<u8> = vec![
-		42, 88, 173, 15, 94, 201, 120, 66, 33, 155, 77, 200, 11, 250, 92, 38, 63, 141, 222, 199,
-		81, 49, 7, 144, 99, 182, 241, 123, 56, 76, 190, 204,
-	];
+	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
 
-	let gibberish_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&gibberish[..]);
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
+	);
 
-	let gibberish_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&gibberish_auth_id_digest);
+	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
+
+	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
+
+	let non_existent_authorization_id: AuthorizationIdOf =
+		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	new_test_ext().execute_with(|| {
 		assert_err!(
 			Registries::ensure_authorization_reinstate_origin(
-				&gibberish_authorization_id,
+				&non_existent_authorization_id,
 				&delegate
 			),
 			Error::<Test>::AuthorizationNotFound
@@ -1762,21 +1737,26 @@ fn ensure_authorization_reinstate_origin_should_fail_if_authorization_is_not_fou
 
 #[test]
 fn ensure_authorization_restore_origin_should_fail_if_authorization_is_not_found() {
-	let delegate = ACCOUNT_00;
+	let creator = ACCOUNT_00;
+	let delegate = ACCOUNT_01;
+	let registry = [2u8; 256].to_vec();
 
-	let gibberish: Vec<u8> = vec![
-		42, 88, 173, 15, 94, 201, 120, 66, 33, 155, 77, 200, 11, 250, 92, 38, 63, 141, 222, 199,
-		81, 49, 7, 144, 99, 182, 241, 123, 56, 76, 190, 204,
-	];
+	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
 
-	let gibberish_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&gibberish[..]);
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
+	);
 
-	let gibberish_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&gibberish_auth_id_digest);
+	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
+
+	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
+
+	let non_existent_authorization_id: AuthorizationIdOf =
+		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	new_test_ext().execute_with(|| {
 		assert_err!(
-			Registries::ensure_authorization_restore_origin(&gibberish_authorization_id, &delegate),
+			Registries::ensure_authorization_restore_origin(&non_existent_authorization_id, &delegate),
 			Error::<Test>::AuthorizationNotFound
 		);
 	});
@@ -1784,21 +1764,26 @@ fn ensure_authorization_restore_origin_should_fail_if_authorization_is_not_found
 
 #[test]
 fn ensure_authorization_admin_origin_should_fail_if_authorization_is_not_found() {
-	let delegate = ACCOUNT_00;
+	let creator = ACCOUNT_00;
+	let delegate = ACCOUNT_01;
+	let registry = [2u8; 256].to_vec();
 
-	let gibberish: Vec<u8> = vec![
-		42, 88, 173, 15, 94, 201, 120, 66, 33, 155, 77, 200, 11, 250, 92, 38, 63, 141, 222, 199,
-		81, 49, 7, 144, 99, 182, 241, 123, 56, 76, 190, 204,
-	];
+	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
 
-	let gibberish_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&gibberish[..]);
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
+	);
 
-	let gibberish_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&gibberish_auth_id_digest);
+	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
+
+	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
+
+	let non_existent_authorization_id: AuthorizationIdOf =
+		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	new_test_ext().execute_with(|| {
 		assert_err!(
-			Registries::ensure_authorization_admin_origin(&gibberish_authorization_id, &delegate),
+			Registries::ensure_authorization_admin_origin(&non_existent_authorization_id, &delegate),
 			Error::<Test>::AuthorizationNotFound
 		);
 	});
@@ -1806,22 +1791,27 @@ fn ensure_authorization_admin_origin_should_fail_if_authorization_is_not_found()
 
 #[test]
 fn ensure_authorization_delegator_origin_should_fail_if_authorization_is_not_found() {
-	let delegate = ACCOUNT_00;
+	let creator = ACCOUNT_00;
+	let delegate = ACCOUNT_01;
+	let registry = [2u8; 256].to_vec();
 
-	let gibberish: Vec<u8> = vec![
-		42, 88, 173, 15, 94, 201, 120, 66, 33, 155, 77, 200, 11, 250, 92, 38, 63, 141, 222, 199,
-		81, 49, 7, 144, 99, 182, 241, 123, 56, 76, 190, 204,
-	];
+	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
 
-	let gibberish_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&gibberish[..]);
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
+	);
 
-	let gibberish_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&gibberish_auth_id_digest);
+	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
+
+	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
+
+	let non_existent_authorization_id: AuthorizationIdOf =
+		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	new_test_ext().execute_with(|| {
 		assert_err!(
 			Registries::ensure_authorization_delegator_origin(
-				&gibberish_authorization_id,
+				&non_existent_authorization_id,
 				&delegate
 			),
 			Error::<Test>::AuthorizationNotFound
@@ -1831,22 +1821,27 @@ fn ensure_authorization_delegator_origin_should_fail_if_authorization_is_not_fou
 
 #[test]
 fn ensure_authorization_admin_remove_origin_should_fail_if_authorization_is_not_found() {
-	let delegate = ACCOUNT_00;
+	let creator = ACCOUNT_00;
+	let delegate = ACCOUNT_01;
+	let registry = [2u8; 256].to_vec();
 
-	let gibberish: Vec<u8> = vec![
-		42, 88, 173, 15, 94, 201, 120, 66, 33, 155, 77, 200, 11, 250, 92, 38, 63, 141, 222, 199,
-		81, 49, 7, 144, 99, 182, 241, 123, 56, 76, 190, 204,
-	];
+	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
 
-	let gibberish_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&gibberish[..]);
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
+	);
 
-	let gibberish_authorization_id: AuthorizationIdOf =
-		generate_authorization_id::<Test>(&gibberish_auth_id_digest);
+	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
+
+	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
+
+	let non_existent_authorization_id: AuthorizationIdOf =
+		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	new_test_ext().execute_with(|| {
 		assert_err!(
 			Registries::ensure_authorization_admin_remove_origin(
-				&gibberish_authorization_id,
+				&non_existent_authorization_id,
 				&delegate
 			),
 			Error::<Test>::AuthorizationNotFound
