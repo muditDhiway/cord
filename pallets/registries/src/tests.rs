@@ -1228,8 +1228,9 @@ fn remove_delegate_should_fail_if_admin_authorization_is_not_found() {
 		&[&registry_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
-	
+	let non_existent_auth_id_digest =
+		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
+
 	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
 	let non_existent_authorization_id: AuthorizationIdOf =
@@ -1418,7 +1419,8 @@ fn revoke_should_fail_if_admin_authorization_is_not_found() {
 
 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
 
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
+	let non_existent_auth_id_digest =
+		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
 	let non_existent_authorization_id: AuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
@@ -1471,7 +1473,8 @@ fn reinstate_should_fail_if_admin_authorization_is_not_found() {
 		&[&registry_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
+	let non_existent_auth_id_digest =
+		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
 	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
@@ -1534,7 +1537,8 @@ fn update_should_fail_if_admin_authorization_is_not_found() {
 
 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
 
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
+	let non_existent_auth_id_digest =
+		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
 	let non_existent_authorization_id: AuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
@@ -1585,7 +1589,8 @@ fn archive_should_fail_if_admin_authorization_is_not_found() {
 
 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
 
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
+	let non_existent_auth_id_digest =
+		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
 	let non_existent_authorization_id: AuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
@@ -1638,7 +1643,8 @@ fn restore_should_fail_if_admin_authorization_is_not_found() {
 		&[&registry_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
+	let non_existent_auth_id_digest =
+		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
 	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
@@ -1692,7 +1698,8 @@ fn ensure_authorization_origin_should_fail_if_authorization_is_not_found() {
 
 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
 
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
+	let non_existent_auth_id_digest =
+		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
 	let non_existent_authorization_id: AuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
@@ -1719,7 +1726,8 @@ fn ensure_authorization_reinstate_origin_should_fail_if_authorization_is_not_fou
 
 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
 
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
+	let non_existent_auth_id_digest =
+		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
 	let non_existent_authorization_id: AuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
@@ -1749,14 +1757,18 @@ fn ensure_authorization_restore_origin_should_fail_if_authorization_is_not_found
 
 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
 
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
+	let non_existent_auth_id_digest =
+		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
 	let non_existent_authorization_id: AuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	new_test_ext().execute_with(|| {
 		assert_err!(
-			Registries::ensure_authorization_restore_origin(&non_existent_authorization_id, &delegate),
+			Registries::ensure_authorization_restore_origin(
+				&non_existent_authorization_id,
+				&delegate
+			),
 			Error::<Test>::AuthorizationNotFound
 		);
 	});
@@ -1776,14 +1788,18 @@ fn ensure_authorization_admin_origin_should_fail_if_authorization_is_not_found()
 
 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
 
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
+	let non_existent_auth_id_digest =
+		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
 	let non_existent_authorization_id: AuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	new_test_ext().execute_with(|| {
 		assert_err!(
-			Registries::ensure_authorization_admin_origin(&non_existent_authorization_id, &delegate),
+			Registries::ensure_authorization_admin_origin(
+				&non_existent_authorization_id,
+				&delegate
+			),
 			Error::<Test>::AuthorizationNotFound
 		);
 	});
@@ -1803,7 +1819,8 @@ fn ensure_authorization_delegator_origin_should_fail_if_authorization_is_not_fou
 
 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
 
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
+	let non_existent_auth_id_digest =
+		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
 	let non_existent_authorization_id: AuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
@@ -1833,7 +1850,8 @@ fn ensure_authorization_admin_remove_origin_should_fail_if_authorization_is_not_
 
 	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
 
-	let non_existent_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
+	let non_existent_auth_id_digest =
+		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
 	let non_existent_authorization_id: AuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
