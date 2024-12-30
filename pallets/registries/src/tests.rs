@@ -1205,3 +1205,102 @@ fn update_registry_should_succeed() {
 		);
 	});
 }
+
+#[test]
+fn registry_delegate_addition_should_fail_if_delegate_already_exists() {
+	let creator = ACCOUNT_00;
+	let delegate1 = ACCOUNT_01;
+	let delegate2 = ACCOUNT_02;
+	let delegate3: AccountId = AccountId::new([4u8; 32]);
+	let registry = [2u8; 256].to_vec();
+
+	let raw_blob = [2u8; 256].to_vec();
+	let blob: RegistryBlobOf<Test> = BoundedVec::try_from(raw_blob)
+		.expect("Test blob should fit into the expected input length of for the test runtime.");
+
+	let registry_digest = <Test as frame_system::Config>::Hashing::hash(&registry.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&registry_digest.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+
+	let registry_id: RegistryIdOf = generate_registry_id::<Test>(&id_digest);
+
+	let auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&registry_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+
+	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
+
+	let raw_schema = [2u8; 256].to_vec();
+	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
+		.expect("Test Schema should fit into the expected input length of for the test runtime.");
+	let _digest: SchemaHashOf<Test> = <Test as frame_system::Config>::Hashing::hash(&schema[..]);
+	let schema_id_digest = <Test as frame_system::Config>::Hashing::hash(&schema.encode()[..]);
+	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
+
+	let admin_permissions = Permissions::ADMIN;
+	let delegate_permissions = Permissions::ASSERT;
+	let delegator_permissions = Permissions::DELEGATE;
+
+	new_test_ext().execute_with(|| {
+		assert_ok!(Registries::create(
+			frame_system::RawOrigin::Signed(creator.clone()).into(),
+			registry_id.clone(),
+			registry_digest,
+			Some(schema_id),
+			Some(blob)
+		));
+
+		assert_ok!(Registries::add_admin_delegate(
+			frame_system::RawOrigin::Signed(creator.clone()).into(),
+			registry_id.clone(),
+			delegate1.clone(),
+			authorization_id.clone(),
+		));
+
+		assert_err!(
+			Registries::registry_delegate_addition(
+				registry_id.clone(),
+				delegate1.clone(),
+				creator.clone(),
+				admin_permissions.clone()
+			),
+			Error::<Test>::DelegateAlreadyAdded
+		);
+
+		assert_ok!(Registries::add_delegate(
+			frame_system::RawOrigin::Signed(creator.clone()).into(),
+			registry_id.clone(),
+			delegate2.clone(),
+			authorization_id.clone(),
+		));
+
+		assert_err!(
+			Registries::registry_delegate_addition(
+				registry_id.clone(),
+				delegate2.clone(),
+				creator.clone(),
+				delegate_permissions.clone()
+			),
+			Error::<Test>::DelegateAlreadyAdded
+		);
+
+		assert_ok!(Registries::add_delegator(
+			frame_system::RawOrigin::Signed(creator.clone()).into(),
+			registry_id.clone(),
+			delegate3.clone(),
+			authorization_id.clone(),
+		));
+
+		assert_err!(
+			Registries::registry_delegate_addition(
+				registry_id.clone(),
+				delegate3.clone(),
+				creator.clone(),
+				delegator_permissions.clone()
+			),
+			Error::<Test>::DelegateAlreadyAdded
+		);
+	});
+}
