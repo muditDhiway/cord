@@ -24,6 +24,7 @@ use serde_json::json;
 use sp_runtime::traits::Hash;
 use sp_std::prelude::*;
 
+use pallet_namespace::{NameSpaceCodeOf, NameSpaceIdOf};
 use pallet_registries::{RegistryBlobOf, RegistryHashOf};
 use pallet_schema_accounts::{InputSchemaOf, SchemaHashOf, SchemaIdOf};
 
@@ -46,7 +47,9 @@ pub fn generate_registry_entry_id<T: Config>(id_digest: &RegistryHashOf<T>) -> R
 }
 
 /// Generates a Authorization ID
-pub fn generate_authorization_id<T: Config>(digest: &RegistryHashOf<T>) -> AuthorizationIdOf {
+pub fn generate_authorization_id<T: Config>(
+	digest: &RegistryHashOf<T>,
+) -> RegistryAuthorizationIdOf {
 	Ss58Identifier::create_identifier(&(digest).encode()[..], IdentifierType::RegistryAuthorization)
 		.unwrap()
 }
@@ -57,6 +60,22 @@ pub fn generate_schema_id<T: Config>(digest: &SchemaHashOf<T>) -> SchemaIdOf {
 		.unwrap()
 }
 
+/// Generates a Namespace ID
+pub fn generate_namespace_id<T: Config>(digest: &NameSpaceCodeOf<T>) -> NameSpaceIdOf {
+	Ss58Identifier::create_identifier(&(digest).encode()[..], IdentifierType::NameSpace).unwrap()
+}
+
+/// Generates a Namespace Authorization ID
+pub fn generate_namespace_authorization_id<T: Config>(
+	digest: &NameSpaceCodeOf<T>,
+) -> NamespaceAuthorizationIdOf {
+	Ss58Identifier::create_identifier(
+		&(digest).encode()[..],
+		IdentifierType::NameSpaceAuthorization,
+	)
+	.unwrap()
+}
+
 pub(crate) const ACCOUNT_00: AccountId = AccountId::new([1u8; 32]);
 pub(crate) const ACCOUNT_01: AccountId = AccountId::new([2u8; 32]);
 pub(crate) const ACCOUNT_02: AccountId = AccountId::new([3u8; 32]);
@@ -64,6 +83,21 @@ pub(crate) const ACCOUNT_02: AccountId = AccountId::new([3u8; 32]);
 #[test]
 fn create_registry_entry_should_work() {
 	let creator = ACCOUNT_00;
+
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest);
+
 	let registry = [2u8; 256].to_vec();
 
 	let raw_blob = [2u8; 256].to_vec();
@@ -82,7 +116,8 @@ fn create_registry_entry_should_work() {
 		&[&registry_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
+	let authorization_id: RegistryAuthorizationIdOf =
+		generate_authorization_id::<Test>(&auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -92,10 +127,18 @@ fn create_registry_entry_should_work() {
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		/* Test creation of a Namespace */
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(creator.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
 		/* Test creation of a Registry */
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_digest,
+			namespace_authorization_id.clone(),
 			Some(schema_id),
 			Some(blob),
 		));
@@ -174,6 +217,21 @@ fn create_registry_entry_should_work() {
 #[test]
 fn update_registry_entry_should_work() {
 	let creator = ACCOUNT_00;
+
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest);
+
 	let registry = [2u8; 256].to_vec();
 
 	let raw_blob = [2u8; 256].to_vec();
@@ -192,7 +250,8 @@ fn update_registry_entry_should_work() {
 		&[&registry_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
+	let authorization_id: RegistryAuthorizationIdOf =
+		generate_authorization_id::<Test>(&auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -202,10 +261,18 @@ fn update_registry_entry_should_work() {
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		/* Test creation of a Namespace */
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(creator.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
 		/* Test creation of a Registry */
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_digest,
+			namespace_authorization_id.clone(),
 			Some(schema_id),
 			Some(blob),
 		));
@@ -325,6 +392,21 @@ fn update_registry_entry_should_work() {
 #[test]
 fn revoke_registry_entry_should_work() {
 	let creator = ACCOUNT_00;
+
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest);
+
 	let registry = [2u8; 256].to_vec();
 
 	let raw_blob = [2u8; 256].to_vec();
@@ -343,7 +425,8 @@ fn revoke_registry_entry_should_work() {
 		&[&registry_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
+	let authorization_id: RegistryAuthorizationIdOf =
+		generate_authorization_id::<Test>(&auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -353,10 +436,18 @@ fn revoke_registry_entry_should_work() {
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		/* Test creation of a Namespace */
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(creator.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
 		/* Test creation of a Registry */
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_digest,
+			namespace_authorization_id.clone(),
 			Some(schema_id),
 			Some(blob),
 		));
@@ -437,6 +528,21 @@ fn revoke_registry_entry_should_work() {
 #[test]
 fn reinstating_revoked_registry_entry_should_work() {
 	let creator = ACCOUNT_00;
+
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest);
+
 	let registry = [2u8; 256].to_vec();
 
 	let raw_blob = [2u8; 256].to_vec();
@@ -455,7 +561,8 @@ fn reinstating_revoked_registry_entry_should_work() {
 		&[&registry_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
+	let authorization_id: RegistryAuthorizationIdOf =
+		generate_authorization_id::<Test>(&auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -465,10 +572,18 @@ fn reinstating_revoked_registry_entry_should_work() {
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		/* Test creation of a Namespace */
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(creator.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
 		/* Test creation of a Registry */
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_digest,
+			namespace_authorization_id.clone(),
 			Some(schema_id),
 			Some(blob),
 		));
@@ -563,6 +678,21 @@ fn reinstating_revoked_registry_entry_should_work() {
 fn update_registry_entry_should_work_for_valid_creator() {
 	let admin = ACCOUNT_00;
 	let creator = ACCOUNT_01;
+
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &admin.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &admin.encode()[..], &admin.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest);
+
 	let registry = [2u8; 256].to_vec();
 
 	let raw_blob = [2u8; 256].to_vec();
@@ -581,13 +711,14 @@ fn update_registry_entry_should_work_for_valid_creator() {
 		&[&registry_id.encode()[..], &admin.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
+	let authorization_id: RegistryAuthorizationIdOf =
+		generate_authorization_id::<Test>(&auth_id_digest);
 
 	let creator_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &creator.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let creator_authorization_id: AuthorizationIdOf =
+	let creator_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&creator_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
@@ -598,10 +729,18 @@ fn update_registry_entry_should_work_for_valid_creator() {
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		/* Test creation of a Namespace */
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(admin.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
 		/* Test creation of a Registry */
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_digest,
+			namespace_authorization_id.clone(),
 			Some(schema_id),
 			Some(blob),
 		));
@@ -611,6 +750,7 @@ fn update_registry_entry_should_work_for_valid_creator() {
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_id.clone(),
 			creator.clone(),
+			namespace_authorization_id.clone(),
 			authorization_id.clone(),
 		));
 
@@ -730,6 +870,21 @@ fn update_registry_entry_should_work_for_valid_creator() {
 #[test]
 fn update_registry_entry_should_work_for_valid_admin() {
 	let creator = ACCOUNT_00;
+
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest);
+
 	let registry = [2u8; 256].to_vec();
 
 	let raw_blob = [2u8; 256].to_vec();
@@ -748,7 +903,8 @@ fn update_registry_entry_should_work_for_valid_admin() {
 		&[&registry_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
+	let authorization_id: RegistryAuthorizationIdOf =
+		generate_authorization_id::<Test>(&auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
 	let schema: InputSchemaOf<Test> = BoundedVec::try_from(raw_schema)
@@ -758,10 +914,18 @@ fn update_registry_entry_should_work_for_valid_admin() {
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		/* Test creation of a Namespace */
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(creator.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
 		/* Test creation of a Registry */
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_digest,
+			namespace_authorization_id.clone(),
 			Some(schema_id),
 			Some(blob),
 		));
@@ -884,6 +1048,21 @@ fn update_registry_entry_should_fail_for_non_registry_entry_creator() {
 	let admin = ACCOUNT_00;
 	let creator = ACCOUNT_01;
 	let non_creator = ACCOUNT_02;
+
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &admin.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &admin.encode()[..], &admin.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest);
+
 	let registry = [2u8; 256].to_vec();
 
 	let raw_blob = [2u8; 256].to_vec();
@@ -902,20 +1081,21 @@ fn update_registry_entry_should_fail_for_non_registry_entry_creator() {
 		&[&registry_id.encode()[..], &admin.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
+	let authorization_id: RegistryAuthorizationIdOf =
+		generate_authorization_id::<Test>(&auth_id_digest);
 
 	let creator_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &creator.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let creator_authorization_id: AuthorizationIdOf =
+	let creator_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&creator_auth_id_digest);
 
 	let non_creator_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &non_creator.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let non_creator_authorization_id: AuthorizationIdOf =
+	let non_creator_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_creator_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
@@ -926,10 +1106,18 @@ fn update_registry_entry_should_fail_for_non_registry_entry_creator() {
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		/* Test creation of a Namespace */
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(admin.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
 		/* Test creation of a Registry */
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_digest,
+			namespace_authorization_id.clone(),
 			Some(schema_id),
 			Some(blob),
 		));
@@ -939,6 +1127,7 @@ fn update_registry_entry_should_fail_for_non_registry_entry_creator() {
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_id.clone(),
 			creator.clone(),
+			namespace_authorization_id.clone(),
 			authorization_id.clone(),
 		));
 
@@ -946,6 +1135,7 @@ fn update_registry_entry_should_fail_for_non_registry_entry_creator() {
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_id.clone(),
 			non_creator.clone(),
+			namespace_authorization_id.clone(),
 			authorization_id.clone(),
 		));
 
@@ -1054,6 +1244,27 @@ fn update_registry_entry_should_fail_for_non_registry_admin() {
 	let admin = ACCOUNT_00;
 	let creator = ACCOUNT_01;
 	let invalid_admin = ACCOUNT_02;
+
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &admin.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &admin.encode()[..], &admin.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest);
+
+	let invalid_admin_namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &invalid_admin.encode()[..], &admin.encode()[..]].concat()[..],
+	);
+	let invalid_admin_namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&invalid_admin_namespace_auth_id_digest);
+
 	let registry = [2u8; 256].to_vec();
 
 	let raw_blob = [2u8; 256].to_vec();
@@ -1078,13 +1289,14 @@ fn update_registry_entry_should_fail_for_non_registry_admin() {
 		&[&registry_id.encode()[..], &admin.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
+	let authorization_id: RegistryAuthorizationIdOf =
+		generate_authorization_id::<Test>(&auth_id_digest);
 
 	let creator_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &creator.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let creator_authorization_id: AuthorizationIdOf =
+	let creator_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&creator_auth_id_digest);
 
 	let invalid_admin_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
@@ -1096,7 +1308,7 @@ fn update_registry_entry_should_fail_for_non_registry_admin() {
 		.concat()[..],
 	);
 
-	let invalid_admin_authorization_id: AuthorizationIdOf =
+	let invalid_admin_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&invalid_admin_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
@@ -1107,10 +1319,26 @@ fn update_registry_entry_should_fail_for_non_registry_admin() {
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		/* Test creation of a Namespace */
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(admin.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
+		/* Add a invalid-admin as part of the namespace so can form a different registry */
+		assert_ok!(NameSpace::add_delegate(
+			frame_system::RawOrigin::Signed(admin.clone()).into(),
+			namespace_id.clone(),
+			invalid_admin.clone(),
+			namespace_authorization_id.clone()
+		));
+
 		/* Test creation of a Registry */
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_digest,
+			namespace_authorization_id.clone(),
 			Some(schema_id.clone()),
 			Some(blob.clone()),
 		));
@@ -1120,12 +1348,14 @@ fn update_registry_entry_should_fail_for_non_registry_admin() {
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_id.clone(),
 			creator.clone(),
+			namespace_authorization_id.clone(),
 			authorization_id.clone(),
 		));
 
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(invalid_admin.clone()).into(),
 			registry_digest,
+			invalid_admin_namespace_authorization_id.clone(),
 			Some(schema_id),
 			Some(blob),
 		));
@@ -1235,6 +1465,21 @@ fn update_ownership_of_registry_entry_creator_should_work_for_creator() {
 	let admin = ACCOUNT_00;
 	let creator = ACCOUNT_01;
 	let new_owner = ACCOUNT_02;
+
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &admin.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest_admin = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &admin.encode()[..], &admin.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id_admin: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest_admin);
+
 	let registry = [2u8; 256].to_vec();
 
 	let raw_blob = [2u8; 256].to_vec();
@@ -1253,20 +1498,21 @@ fn update_ownership_of_registry_entry_creator_should_work_for_creator() {
 		&[&registry_id.encode()[..], &admin.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
+	let authorization_id: RegistryAuthorizationIdOf =
+		generate_authorization_id::<Test>(&auth_id_digest);
 
 	let creator_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &creator.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let creator_authorization_id: AuthorizationIdOf =
+	let creator_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&creator_auth_id_digest);
 
 	let new_owner_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &new_owner.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let new_owner_authorization_id: AuthorizationIdOf =
+	let new_owner_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&new_owner_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
@@ -1277,10 +1523,18 @@ fn update_ownership_of_registry_entry_creator_should_work_for_creator() {
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		/* Test creation of a Namespace */
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(admin.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
 		/* Test creation of a Registry */
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_digest,
+			namespace_authorization_id_admin.clone(),
 			Some(schema_id),
 			Some(blob),
 		));
@@ -1290,6 +1544,7 @@ fn update_ownership_of_registry_entry_creator_should_work_for_creator() {
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_id.clone(),
 			creator.clone(),
+			namespace_authorization_id_admin.clone(),
 			authorization_id.clone(),
 		));
 
@@ -1298,6 +1553,7 @@ fn update_ownership_of_registry_entry_creator_should_work_for_creator() {
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_id.clone(),
 			new_owner.clone(),
+			namespace_authorization_id_admin.clone(),
 			authorization_id.clone(),
 		));
 
@@ -1397,6 +1653,21 @@ fn update_ownership_of_registry_entry_creator_should_work_for_admin() {
 	let admin = ACCOUNT_00;
 	let creator = ACCOUNT_01;
 	let new_owner = ACCOUNT_02;
+
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &admin.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &admin.encode()[..], &admin.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest);
+
 	let registry = [2u8; 256].to_vec();
 
 	let raw_blob = [2u8; 256].to_vec();
@@ -1415,20 +1686,21 @@ fn update_ownership_of_registry_entry_creator_should_work_for_admin() {
 		&[&registry_id.encode()[..], &admin.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
+	let authorization_id: RegistryAuthorizationIdOf =
+		generate_authorization_id::<Test>(&auth_id_digest);
 
 	let creator_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &creator.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let creator_authorization_id: AuthorizationIdOf =
+	let creator_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&creator_auth_id_digest);
 
 	let new_owner_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &new_owner.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let new_owner_authorization_id: AuthorizationIdOf =
+	let new_owner_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&new_owner_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
@@ -1439,10 +1711,18 @@ fn update_ownership_of_registry_entry_creator_should_work_for_admin() {
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		/* Test creation of a Namespace */
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(admin.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
 		/* Test creation of a Registry */
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_digest,
+			namespace_authorization_id.clone(),
 			Some(schema_id),
 			Some(blob),
 		));
@@ -1452,6 +1732,7 @@ fn update_ownership_of_registry_entry_creator_should_work_for_admin() {
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_id.clone(),
 			creator.clone(),
+			namespace_authorization_id.clone(),
 			authorization_id.clone(),
 		));
 
@@ -1460,6 +1741,7 @@ fn update_ownership_of_registry_entry_creator_should_work_for_admin() {
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_id.clone(),
 			new_owner.clone(),
+			namespace_authorization_id.clone(),
 			authorization_id.clone(),
 		));
 
@@ -1559,6 +1841,21 @@ fn new_owner_should_be_able_to_perform_registry_entry_operations_after_ownership
 	let admin = ACCOUNT_00;
 	let creator = ACCOUNT_01;
 	let new_owner = ACCOUNT_02;
+
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &admin.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &admin.encode()[..], &admin.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest);
+
 	let registry = [2u8; 256].to_vec();
 
 	let raw_blob = [2u8; 256].to_vec();
@@ -1577,20 +1874,21 @@ fn new_owner_should_be_able_to_perform_registry_entry_operations_after_ownership
 		&[&registry_id.encode()[..], &admin.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
+	let authorization_id: RegistryAuthorizationIdOf =
+		generate_authorization_id::<Test>(&auth_id_digest);
 
 	let creator_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &creator.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let creator_authorization_id: AuthorizationIdOf =
+	let creator_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&creator_auth_id_digest);
 
 	let new_owner_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &new_owner.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let new_owner_authorization_id: AuthorizationIdOf =
+	let new_owner_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&new_owner_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
@@ -1601,10 +1899,18 @@ fn new_owner_should_be_able_to_perform_registry_entry_operations_after_ownership
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		/* Test creation of a Namespace */
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(admin.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
 		/* Test creation of a Registry */
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_digest,
+			namespace_authorization_id.clone(),
 			Some(schema_id),
 			Some(blob),
 		));
@@ -1614,6 +1920,7 @@ fn new_owner_should_be_able_to_perform_registry_entry_operations_after_ownership
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_id.clone(),
 			creator.clone(),
+			namespace_authorization_id.clone(),
 			authorization_id.clone(),
 		));
 
@@ -1622,6 +1929,7 @@ fn new_owner_should_be_able_to_perform_registry_entry_operations_after_ownership
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_id.clone(),
 			new_owner.clone(),
+			namespace_authorization_id.clone(),
 			authorization_id.clone(),
 		));
 
@@ -1773,6 +2081,21 @@ fn old_owner_should_not_be_able_to_perform_registry_entry_operations_after_owner
 	let admin = ACCOUNT_00;
 	let creator = ACCOUNT_01;
 	let new_owner = ACCOUNT_02;
+
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &admin.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &admin.encode()[..], &admin.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest);
+
 	let registry = [2u8; 256].to_vec();
 
 	let raw_blob = [2u8; 256].to_vec();
@@ -1791,20 +2114,21 @@ fn old_owner_should_not_be_able_to_perform_registry_entry_operations_after_owner
 		&[&registry_id.encode()[..], &admin.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
+	let authorization_id: RegistryAuthorizationIdOf =
+		generate_authorization_id::<Test>(&auth_id_digest);
 
 	let creator_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &creator.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let creator_authorization_id: AuthorizationIdOf =
+	let creator_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&creator_auth_id_digest);
 
 	let new_owner_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &new_owner.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let new_owner_authorization_id: AuthorizationIdOf =
+	let new_owner_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&new_owner_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
@@ -1815,10 +2139,18 @@ fn old_owner_should_not_be_able_to_perform_registry_entry_operations_after_owner
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		/* Test creation of a Namespace */
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(admin.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
 		/* Test creation of a Registry */
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_digest,
+			namespace_authorization_id.clone(),
 			Some(schema_id),
 			Some(blob),
 		));
@@ -1828,6 +2160,7 @@ fn old_owner_should_not_be_able_to_perform_registry_entry_operations_after_owner
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_id.clone(),
 			creator.clone(),
+			namespace_authorization_id.clone(),
 			authorization_id.clone(),
 		));
 
@@ -1836,6 +2169,7 @@ fn old_owner_should_not_be_able_to_perform_registry_entry_operations_after_owner
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_id.clone(),
 			new_owner.clone(),
+			namespace_authorization_id.clone(),
 			authorization_id.clone(),
 		));
 
@@ -1982,6 +2316,21 @@ fn update_ownership_should_fail_for_updating_themselves() {
 	let admin = ACCOUNT_00;
 	let creator = ACCOUNT_01;
 	let new_owner = ACCOUNT_02;
+
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &admin.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &admin.encode()[..], &admin.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest);
+
 	let registry = [2u8; 256].to_vec();
 
 	let raw_blob = [2u8; 256].to_vec();
@@ -2000,13 +2349,14 @@ fn update_ownership_should_fail_for_updating_themselves() {
 		&[&registry_id.encode()[..], &admin.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
+	let authorization_id: RegistryAuthorizationIdOf =
+		generate_authorization_id::<Test>(&auth_id_digest);
 
 	let creator_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &creator.encode()[..], &admin.encode()[..]].concat()[..],
 	);
 
-	let creator_authorization_id: AuthorizationIdOf =
+	let creator_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&creator_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
@@ -2017,10 +2367,18 @@ fn update_ownership_should_fail_for_updating_themselves() {
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		/* Test creation of a Namespace */
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(admin.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
 		/* Test creation of a Registry */
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_digest,
+			namespace_authorization_id.clone(),
 			Some(schema_id),
 			Some(blob),
 		));
@@ -2030,6 +2388,7 @@ fn update_ownership_should_fail_for_updating_themselves() {
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_id.clone(),
 			creator.clone(),
+			namespace_authorization_id.clone(),
 			authorization_id.clone(),
 		));
 
@@ -2038,6 +2397,7 @@ fn update_ownership_should_fail_for_updating_themselves() {
 			frame_system::RawOrigin::Signed(admin.clone()).into(),
 			registry_id.clone(),
 			new_owner.clone(),
+			namespace_authorization_id.clone(),
 			authorization_id.clone(),
 		));
 

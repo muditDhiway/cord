@@ -97,8 +97,8 @@ impl From<DidVerificationKeyRelationship> for KeyType {
 		match key_type {
 			DidVerificationKeyRelationship::Authentication => KeyType::Authentication,
 			DidVerificationKeyRelationship::AssertionMethod => KeyType::AssertionMethod,
-			DidVerificationKeyRelationship::CapabilityDelegation |
-			DidVerificationKeyRelationship::CapabilityInvocation => KeyType::Delegation,
+			DidVerificationKeyRelationship::CapabilityDelegation
+			| DidVerificationKeyRelationship::CapabilityInvocation => KeyType::Delegation,
 		}
 	}
 }

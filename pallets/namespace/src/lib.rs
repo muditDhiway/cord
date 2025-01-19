@@ -156,8 +156,8 @@ pub mod pallet {
 	pub trait Config: frame_system::Config + identifier::Config {
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 
+		// TODO: Remove below two constants.
 		type ChainSpaceOrigin: EnsureOrigin<Self::RuntimeOrigin>;
-
 		type NetworkPermission: IsPermissioned;
 
 		#[pallet::constant]
@@ -461,7 +461,7 @@ pub mod pallet {
 
 				Self::update_activity(
 					&namespace_id,
-					IdentifierTypeOf::Auth,
+					IdentifierTypeOf::NameSpaceAuthorization,
 					CallTypeOf::Deauthorization,
 				)?;
 
@@ -522,9 +522,11 @@ pub mod pallet {
 				&[&digest.encode()[..], &creator.encode()[..]].concat()[..],
 			);
 
-			let identifier =
-				Ss58Identifier::create_identifier(&id_digest.encode()[..], IdentifierType::Space)
-					.map_err(|_| Error::<T>::InvalidIdentifierLength)?;
+			let identifier = Ss58Identifier::create_identifier(
+				&id_digest.encode()[..],
+				IdentifierType::NameSpace,
+			)
+			.map_err(|_| Error::<T>::InvalidIdentifierLength)?;
 
 			ensure!(
 				!<NameSpaces<T>>::contains_key(&identifier),
@@ -541,7 +543,7 @@ pub mod pallet {
 
 			let authorization_id = Ss58Identifier::create_identifier(
 				&auth_id_digest.encode(),
-				IdentifierType::Authorization,
+				IdentifierType::NameSpaceAuthorization,
 			)
 			.map_err(|_| Error::<T>::InvalidIdentifierLength)?;
 
@@ -573,7 +575,7 @@ pub mod pallet {
 				},
 			);
 
-			Self::update_activity(&identifier, IdentifierTypeOf::ChainSpace, CallTypeOf::Genesis)
+			Self::update_activity(&identifier, IdentifierTypeOf::NameSpace, CallTypeOf::Genesis)
 				.map_err(Error::<T>::from)?;
 
 			Self::deposit_event(Event::Create {
@@ -638,7 +640,7 @@ pub mod pallet {
 				NameSpaceDetailsOf::<T> { archive: true, ..namespace_details },
 			);
 
-			Self::update_activity(&namespace_id, IdentifierTypeOf::ChainSpace, CallTypeOf::Archive)
+			Self::update_activity(&namespace_id, IdentifierTypeOf::NameSpace, CallTypeOf::Archive)
 				.map_err(Error::<T>::from)?;
 
 			Self::deposit_event(Event::Archive { namespace: namespace_id, authority: creator });
@@ -698,7 +700,7 @@ pub mod pallet {
 				NameSpaceDetailsOf::<T> { archive: false, ..namespace_details },
 			);
 
-			Self::update_activity(&namespace_id, IdentifierTypeOf::ChainSpace, CallTypeOf::Restore)
+			Self::update_activity(&namespace_id, IdentifierTypeOf::NameSpace, CallTypeOf::Restore)
 				.map_err(Error::<T>::from)?;
 
 			Self::deposit_event(Event::Restore { namespace: namespace_id, authority: creator });
@@ -728,9 +730,11 @@ impl<T: Config> Pallet<T> {
 			&[&namespace_id.encode()[..], &delegate.encode()[..], &creator.encode()[..]].concat()[..],
 		);
 
-		let delegate_authorization_id =
-			Ss58Identifier::create_identifier(&id_digest.encode(), IdentifierType::Authorization)
-				.map_err(|_| Error::<T>::InvalidIdentifierLength)?;
+		let delegate_authorization_id = Ss58Identifier::create_identifier(
+			&id_digest.encode(),
+			IdentifierType::NameSpaceAuthorization,
+		)
+		.map_err(|_| Error::<T>::InvalidIdentifierLength)?;
 
 		ensure!(
 			!Authorizations::<T>::contains_key(&delegate_authorization_id),
@@ -753,8 +757,12 @@ impl<T: Config> Pallet<T> {
 			},
 		);
 
-		Self::update_activity(&namespace_id, IdentifierTypeOf::Auth, CallTypeOf::Authorization)
-			.map_err(Error::<T>::from)?;
+		Self::update_activity(
+			&namespace_id,
+			IdentifierTypeOf::NameSpaceAuthorization,
+			CallTypeOf::Authorization,
+		)
+		.map_err(Error::<T>::from)?;
 
 		Self::deposit_event(Event::Authorization {
 			namespace: namespace_id,
