@@ -2213,7 +2213,7 @@ fn remove_delegate_should_fail_if_remove_authorization_is_not_found_as_delegate_
 }
 
 #[test]
-fn remove_delegate_should_fail_if_remove_authorization_is_not_found_as_gibberish_auth_id_entered() {
+fn remove_delegate_should_fail_if_remove_authorization_is_not_found_as_non_existant_auth_id_entered() {
 	let creator = ACCOUNT_00;
 	let delegate = ACCOUNT_01;
 	let registry = [2u8; 256].to_vec();
