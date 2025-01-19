@@ -2042,6 +2042,20 @@ fn remove_delegate_should_fail_if_admin_authorization_is_not_found() {
 	let delegate = ACCOUNT_01;
 	let registry = [2u8; 256].to_vec();
 
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest);
+
 	let raw_blob = [2u8; 256].to_vec();
 	let blob: RegistryBlobOf<Test> = BoundedVec::try_from(raw_blob)
 		.expect("Test blob should fit into the expected input length for the test runtime.");
@@ -2061,16 +2075,16 @@ fn remove_delegate_should_fail_if_admin_authorization_is_not_found() {
 	let non_existent_auth_id_digest =
 		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
+	let authorization_id: RegistryAuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
-	let non_existent_authorization_id: AuthorizationIdOf =
+	let non_existent_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	let delegate_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &delegate.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let delegate_authorization_id: AuthorizationIdOf =
+	let delegate_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&delegate_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
@@ -2081,9 +2095,16 @@ fn remove_delegate_should_fail_if_admin_authorization_is_not_found() {
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(creator.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_digest,
+			namespace_authorization_id.clone(),
 			Some(schema_id),
 			Some(blob.clone()),
 		));
@@ -2092,6 +2113,7 @@ fn remove_delegate_should_fail_if_admin_authorization_is_not_found() {
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_id.clone(),
 			delegate.clone(),
+			namespace_authorization_id.clone(),
 			authorization_id.clone(),
 		));
 
@@ -2100,6 +2122,7 @@ fn remove_delegate_should_fail_if_admin_authorization_is_not_found() {
 				frame_system::RawOrigin::Signed(creator.clone()).into(),
 				registry_id.clone(),
 				delegate_authorization_id,
+				namespace_authorization_id.clone(),
 				non_existent_authorization_id.clone(),
 			),
 			Error::<Test>::AuthorizationNotFound
@@ -2113,6 +2136,20 @@ fn remove_delegate_should_fail_if_remove_authorization_is_not_found_as_delegate_
 	let delegate = ACCOUNT_01;
 	let registry = [2u8; 256].to_vec();
 
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest);
+
 	let raw_blob = [2u8; 256].to_vec();
 	let blob: RegistryBlobOf<Test> = BoundedVec::try_from(raw_blob)
 		.expect("Test blob should fit into the expected input length for the test runtime.");
@@ -2129,13 +2166,13 @@ fn remove_delegate_should_fail_if_remove_authorization_is_not_found_as_delegate_
 		&[&registry_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
+	let authorization_id: RegistryAuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
 	let delegate_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
 		&[&registry_id.encode()[..], &delegate.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let delegate_authorization_id: AuthorizationIdOf =
+	let delegate_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&delegate_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
@@ -2146,9 +2183,16 @@ fn remove_delegate_should_fail_if_remove_authorization_is_not_found_as_delegate_
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(creator.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_digest,
+			namespace_authorization_id.clone(),
 			Some(schema_id),
 			Some(blob.clone()),
 		));
@@ -2158,6 +2202,7 @@ fn remove_delegate_should_fail_if_remove_authorization_is_not_found_as_delegate_
 				frame_system::RawOrigin::Signed(creator.clone()).into(),
 				registry_id.clone(),
 				delegate_authorization_id,
+				namespace_authorization_id.clone(),
 				authorization_id.clone(),
 			),
 			Error::<Test>::AuthorizationNotFound
@@ -2171,6 +2216,20 @@ fn remove_delegate_should_fail_if_remove_authorization_is_not_found_as_gibberish
 	let delegate = ACCOUNT_01;
 	let registry = [2u8; 256].to_vec();
 
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest);
+
 	let raw_blob = [2u8; 256].to_vec();
 	let blob: RegistryBlobOf<Test> = BoundedVec::try_from(raw_blob)
 		.expect("Test blob should fit into the expected input length for the test runtime.");
@@ -2187,12 +2246,12 @@ fn remove_delegate_should_fail_if_remove_authorization_is_not_found_as_gibberish
 		&[&registry_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
 	);
 
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
+	let authorization_id: RegistryAuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
 	let non_existent_auth_id_digest =
 		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
-	let non_existent_authorization_id: AuthorizationIdOf =
+	let non_existent_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
@@ -2203,9 +2262,16 @@ fn remove_delegate_should_fail_if_remove_authorization_is_not_found_as_gibberish
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(creator.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_digest,
+			namespace_authorization_id.clone(),
 			Some(schema_id),
 			Some(blob.clone()),
 		));
@@ -2214,6 +2280,7 @@ fn remove_delegate_should_fail_if_remove_authorization_is_not_found_as_gibberish
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_id.clone(),
 			delegate.clone(),
+			namespace_authorization_id.clone(),
 			authorization_id.clone(),
 		));
 
@@ -2222,6 +2289,7 @@ fn remove_delegate_should_fail_if_remove_authorization_is_not_found_as_gibberish
 				frame_system::RawOrigin::Signed(creator.clone()).into(),
 				registry_id.clone(),
 				non_existent_authorization_id,
+				namespace_authorization_id.clone(),
 				authorization_id.clone(),
 			),
 			Error::<Test>::AuthorizationNotFound
@@ -2234,6 +2302,20 @@ fn revoke_should_fail_if_admin_authorization_is_not_found() {
 	let creator = ACCOUNT_00;
 	let registry = [2u8; 256].to_vec();
 
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest);
+
 	let raw_blob = [2u8; 256].to_vec();
 	let blob: RegistryBlobOf<Test> = BoundedVec::try_from(raw_blob)
 		.expect("Test blob should fit into the expected input length for the test runtime.");
@@ -2249,7 +2331,7 @@ fn revoke_should_fail_if_admin_authorization_is_not_found() {
 	let non_existent_auth_id_digest =
 		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
-	let non_existent_authorization_id: AuthorizationIdOf =
+	let non_existent_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
@@ -2260,9 +2342,16 @@ fn revoke_should_fail_if_admin_authorization_is_not_found() {
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(creator.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_digest,
+			namespace_authorization_id.clone(),
 			Some(schema_id),
 			Some(blob.clone()),
 		));
@@ -2271,6 +2360,7 @@ fn revoke_should_fail_if_admin_authorization_is_not_found() {
 			Registries::revoke(
 				frame_system::RawOrigin::Signed(creator.clone()).into(),
 				registry_id.clone(),
+				namespace_authorization_id.clone(),
 				non_existent_authorization_id.clone(),
 			),
 			Error::<Test>::AuthorizationNotFound
@@ -2282,6 +2372,20 @@ fn revoke_should_fail_if_admin_authorization_is_not_found() {
 fn reinstate_should_fail_if_admin_authorization_is_not_found() {
 	let creator = ACCOUNT_00;
 	let registry = [2u8; 256].to_vec();
+
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest);
 
 	let raw_blob = [2u8; 256].to_vec();
 	let blob: RegistryBlobOf<Test> = BoundedVec::try_from(raw_blob)
@@ -2302,9 +2406,9 @@ fn reinstate_should_fail_if_admin_authorization_is_not_found() {
 	let non_existent_auth_id_digest =
 		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
+	let authorization_id: RegistryAuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
-	let non_existent_authorization_id: AuthorizationIdOf =
+	let non_existent_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
@@ -2315,9 +2419,16 @@ fn reinstate_should_fail_if_admin_authorization_is_not_found() {
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(creator.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_digest,
+			namespace_authorization_id.clone(),
 			Some(schema_id),
 			Some(blob.clone()),
 		));
@@ -2325,6 +2436,7 @@ fn reinstate_should_fail_if_admin_authorization_is_not_found() {
 		assert_ok!(Registries::revoke(
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_id.clone(),
+			namespace_authorization_id.clone(),
 			authorization_id.clone(),
 		));
 
@@ -2332,6 +2444,7 @@ fn reinstate_should_fail_if_admin_authorization_is_not_found() {
 			Registries::reinstate(
 				frame_system::RawOrigin::Signed(creator.clone()).into(),
 				registry_id.clone(),
+				namespace_authorization_id.clone(),
 				non_existent_authorization_id.clone(),
 			),
 			Error::<Test>::AuthorizationNotFound
@@ -2343,6 +2456,21 @@ fn reinstate_should_fail_if_admin_authorization_is_not_found() {
 fn update_should_fail_if_admin_authorization_is_not_found() {
 	let creator = ACCOUNT_00;
 	let registry = [2u8; 256].to_vec();
+
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest);
+
 	let new_digest =
 		<Test as frame_system::Config>::Hashing::hash(&[3u8; 256].to_vec().encode()[..]);
 
@@ -2365,7 +2493,7 @@ fn update_should_fail_if_admin_authorization_is_not_found() {
 	let non_existent_auth_id_digest =
 		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
-	let non_existent_authorization_id: AuthorizationIdOf =
+	let non_existent_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
@@ -2376,9 +2504,16 @@ fn update_should_fail_if_admin_authorization_is_not_found() {
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(creator.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_digest,
+			namespace_authorization_id.clone(),
 			Some(schema_id),
 			Some(initial_blob),
 		));
@@ -2389,6 +2524,7 @@ fn update_should_fail_if_admin_authorization_is_not_found() {
 				registry_id.clone(),
 				new_digest,
 				Some(new_blob.clone()),
+				namespace_authorization_id.clone(),
 				non_existent_authorization_id.clone(),
 			),
 			Error::<Test>::AuthorizationNotFound
@@ -2400,6 +2536,20 @@ fn update_should_fail_if_admin_authorization_is_not_found() {
 fn archive_should_fail_if_admin_authorization_is_not_found() {
 	let creator = ACCOUNT_00;
 	let registry = [2u8; 256].to_vec();
+
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest);
 
 	let raw_blob = [2u8; 256].to_vec();
 	let blob: RegistryBlobOf<Test> = BoundedVec::try_from(raw_blob)
@@ -2416,7 +2566,7 @@ fn archive_should_fail_if_admin_authorization_is_not_found() {
 	let non_existent_auth_id_digest =
 		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
-	let non_existent_authorization_id: AuthorizationIdOf =
+	let non_existent_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
@@ -2427,9 +2577,16 @@ fn archive_should_fail_if_admin_authorization_is_not_found() {
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(creator.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_digest,
+			namespace_authorization_id.clone(),
 			Some(schema_id),
 			Some(blob.clone()),
 		));
@@ -2438,6 +2595,7 @@ fn archive_should_fail_if_admin_authorization_is_not_found() {
 			Registries::archive(
 				frame_system::RawOrigin::Signed(creator.clone()).into(),
 				registry_id.clone(),
+				namespace_authorization_id.clone(),
 				non_existent_authorization_id.clone(),
 			),
 			Error::<Test>::AuthorizationNotFound
@@ -2449,6 +2607,20 @@ fn archive_should_fail_if_admin_authorization_is_not_found() {
 fn restore_should_fail_if_admin_authorization_is_not_found() {
 	let creator = ACCOUNT_00;
 	let registry = [2u8; 256].to_vec();
+
+	let namespace = [2u8; 256].to_vec();
+	let namespace_digest = <Test as frame_system::Config>::Hashing::hash(&namespace.encode()[..]);
+
+	let id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_digest.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_id: NameSpaceIdOf = generate_namespace_id::<Test>(&id_digest);
+
+	let namespace_auth_id_digest = <Test as frame_system::Config>::Hashing::hash(
+		&[&namespace_id.encode()[..], &creator.encode()[..], &creator.encode()[..]].concat()[..],
+	);
+	let namespace_authorization_id: NamespaceAuthorizationIdOf =
+		generate_namespace_authorization_id::<Test>(&namespace_auth_id_digest);
 
 	let raw_blob = [2u8; 256].to_vec();
 	let blob: RegistryBlobOf<Test> = BoundedVec::try_from(raw_blob)
@@ -2469,9 +2641,9 @@ fn restore_should_fail_if_admin_authorization_is_not_found() {
 	let non_existent_auth_id_digest =
 		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
-	let authorization_id: AuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
+	let authorization_id: RegistryAuthorizationIdOf = generate_authorization_id::<Test>(&auth_id_digest);
 
-	let non_existent_authorization_id: AuthorizationIdOf =
+	let non_existent_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	let raw_schema = [2u8; 256].to_vec();
@@ -2482,9 +2654,16 @@ fn restore_should_fail_if_admin_authorization_is_not_found() {
 	let schema_id: SchemaIdOf = generate_schema_id::<Test>(&schema_id_digest);
 
 	new_test_ext().execute_with(|| {
+		assert_ok!(NameSpace::create(
+			frame_system::RawOrigin::Signed(creator.clone()).into(),
+			namespace_digest,
+			None,
+		));
+
 		assert_ok!(Registries::create(
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_digest,
+			namespace_authorization_id.clone(),
 			Some(schema_id),
 			Some(blob.clone()),
 		));
@@ -2492,6 +2671,7 @@ fn restore_should_fail_if_admin_authorization_is_not_found() {
 		assert_ok!(Registries::archive(
 			frame_system::RawOrigin::Signed(creator.clone()).into(),
 			registry_id.clone(),
+			namespace_authorization_id.clone(),
 			authorization_id.clone(),
 		));
 
@@ -2499,6 +2679,7 @@ fn restore_should_fail_if_admin_authorization_is_not_found() {
 			Registries::restore(
 				frame_system::RawOrigin::Signed(creator.clone()).into(),
 				registry_id.clone(),
+				namespace_authorization_id.clone(),
 				non_existent_authorization_id.clone(),
 			),
 			Error::<Test>::AuthorizationNotFound
@@ -2523,7 +2704,7 @@ fn ensure_authorization_origin_should_fail_if_authorization_is_not_found() {
 	let non_existent_auth_id_digest =
 		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
-	let non_existent_authorization_id: AuthorizationIdOf =
+	let non_existent_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	new_test_ext().execute_with(|| {
@@ -2551,7 +2732,7 @@ fn ensure_authorization_reinstate_origin_should_fail_if_authorization_is_not_fou
 	let non_existent_auth_id_digest =
 		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
-	let non_existent_authorization_id: AuthorizationIdOf =
+	let non_existent_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	new_test_ext().execute_with(|| {
@@ -2582,7 +2763,7 @@ fn ensure_authorization_restore_origin_should_fail_if_authorization_is_not_found
 	let non_existent_auth_id_digest =
 		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
-	let non_existent_authorization_id: AuthorizationIdOf =
+	let non_existent_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	new_test_ext().execute_with(|| {
@@ -2613,7 +2794,7 @@ fn ensure_authorization_admin_origin_should_fail_if_authorization_is_not_found()
 	let non_existent_auth_id_digest =
 		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
-	let non_existent_authorization_id: AuthorizationIdOf =
+	let non_existent_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	new_test_ext().execute_with(|| {
@@ -2644,7 +2825,7 @@ fn ensure_authorization_delegator_origin_should_fail_if_authorization_is_not_fou
 	let non_existent_auth_id_digest =
 		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
-	let non_existent_authorization_id: AuthorizationIdOf =
+	let non_existent_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	new_test_ext().execute_with(|| {
@@ -2675,7 +2856,7 @@ fn ensure_authorization_admin_remove_origin_should_fail_if_authorization_is_not_
 	let non_existent_auth_id_digest =
 		<Test as frame_system::Config>::Hashing::hash(&registry_id.encode()[..]);
 
-	let non_existent_authorization_id: AuthorizationIdOf =
+	let non_existent_authorization_id: RegistryAuthorizationIdOf =
 		generate_authorization_id::<Test>(&non_existent_auth_id_digest);
 
 	new_test_ext().execute_with(|| {
